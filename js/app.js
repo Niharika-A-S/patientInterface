@@ -8,6 +8,8 @@ import {
   getPlayLevel,
   isProfileComplete,
   GAME_TYPES,
+  setLanguage,
+  SUPPORTED_LANGUAGES,
 } from "./db.js";
 import { mountPatternMatching } from "./games/patternMatching.js";
 import { mountShapeSort } from "./games/shapeSort.js";
@@ -34,6 +36,14 @@ export async function startApp(root) {
   await mountProfile(root, { onComplete: () => showHome(root) });
 }
 
+const LANGUAGE_KEYS = {
+  en: "english",
+  hi: "hindi",
+  as: "assamese",
+  bn: "bengali",
+  ne: "nepali",
+};
+
 async function showHome(root) {
   const lang = await getLanguage();
   const patient = await getPatient();
@@ -53,6 +63,25 @@ async function showHome(root) {
     }),
   );
 
+  const langSelector = el("div", { className: "lang-selector", style: { marginBottom: "16px" } },
+    el("div", { style: { textAlign: "center", marginBottom: "8px", background: "#fff", padding: "12px", borderRadius: "8px", border: "1px solid #ddd", color: "#D85A30", fontWeight: "bold" } },
+      "🌐 Change language / Language"
+    ),
+    el("div", { style: { display: "flex", gap: "8px" } },
+      ...SUPPORTED_LANGUAGES.map((code) =>
+        el("button", {
+          className: `btn ${lang === code ? "" : "btn-light"}`,
+          type: "button",
+          style: { flex: "1" },
+          onClick: async () => {
+            await setLanguage(code);
+            showHome(root);
+          },
+        }, t(lang, LANGUAGE_KEYS[code]))
+      )
+    )
+  );
+
   const grid = el("div", { className: "home-grid" });
   for (const game of GAMES) {
     const level = await getPlayLevel(game.id);
@@ -69,7 +98,7 @@ async function showHome(root) {
     );
   }
 
-  root.append(el("main", { className: "screen" }, grid,
+  root.append(el("main", { className: "screen" }, langSelector, grid,
     el("button", {
       className: "btn",
       type: "button",

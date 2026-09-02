@@ -1,6 +1,6 @@
 import { el, clear, header, summaryView, levelSubtitle } from "../ui.js";
 import { t, tf } from "../i18n.js";
-import { speak, setVoiceLang } from "../voice.js";
+import { speak, speakStory, setVoiceLang } from "../voice.js";
 import { applyAdaptiveAndSave, GAME_TYPES } from "../db.js";
 import { clampLevel } from "../adaptive.js";
 import storyContent from "../content/storyContent.js";
@@ -48,7 +48,9 @@ export function mountRememberMyStory(root, { lang, level, onHome }) {
   }
 
   setVoiceLang(lang);
-  speak(story.text);
+  // For Nepali, speakStory routes to the correct pre-recorded MP3 by story id.
+  // For other languages, it falls back to speak(text) via Web Speech API.
+  speakStory(lang, story.id, story.text);
   render();
 
   function render(complete = false, summary = null) {

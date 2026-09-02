@@ -186,5 +186,8 @@ export function mountShapeSort(root, { lang, level, onHome }) {
 }
 
 function foundLabel(lang, found, total) {
-  return lang === "hi" ? `${found} / ${total} मिल गए` : `Found ${found} of ${total}`;
+  if (lang === "hi") return `${found} / ${total} मिल गए`;
+  if (lang === "as") return `${found} / ${total} বিচাৰি পোৱা হ'ল`;
+  if (lang === "bn") return `${found} / ${total} পাওয়া গেছে`;
+  return `Found ${found} of ${total}`;
 }

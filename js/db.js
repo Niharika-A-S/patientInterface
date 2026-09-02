@@ -2,7 +2,7 @@ import { clampLevel, describeAdaptive } from "./adaptive.js";
 
 const DEFAULT_PATIENT_ID = 1;
 
-export const SUPPORTED_LANGUAGES = ["en", "hi", "as", "bn"];
+export const SUPPORTED_LANGUAGES = ["en", "hi", "as", "bn", "ne"];
 
 export function normalizeLanguage(lang) {
   const code = String(lang || "en").toLowerCase();

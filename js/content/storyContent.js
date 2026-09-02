@@ -1468,9 +1468,159 @@ const englishStoryContent = {
   ]
 };
 
+// ─── Assamese translation helpers ────────────────────────────────────────────
+
+const AS_NAME_MAP = {
+  Ravi: "ৰবি", Tenzin: "টেনজিন", Ima: "ইমা", Binod: "বিনোদ",
+  Lily: "লিলি", Robin: "ৰবিন", Anup: "অনুপ", Deepa: "দীপা",
+  Momi: "মোমি", Ratan: "ৰতন", Suman: "সুমন", Ranjit: "ৰণজিৎ",
+  Sanju: "সঞ্জু", Ema: "এমা", Toshi: "তোশি", Mimi: "মিমি",
+  Karma: "কৰ্ম", Nita: "নিতা", Aiba: "আইবা", Wangba: "ৱাংবা",
+  Peter: "পিটাৰ", Lucy: "লুচি", Doni: "দোনি", Ashi: "আশি",
+  Kevi: "কেভি", Sentila: "চেন্তিলা", Neikho: "নেইখো", Vilato: "ভিলাটো",
+  Lalawmpuia: "লালৱমপুইয়া", Zoremi: "জোৰেমি", Malsawma: "মালচৱমা",
+  Rinsangi: "ৰিনচাঙি", Bidya: "বিদ্যা", Tapan: "তপন", Deben: "দেবেন",
+  Ruma: "ৰুমা", Priya: "প্ৰিয়া", Arjun: "অৰ্জুন", Nokchan: "নকচান",
+  Aben: "আবেন", Sanen: "চানেন", Vilie: "ভিলিয়ে", Meena: "মীনা",
+  Diki: "দিকি", Ibemhal: "ইবেমহাল", Sanajaoba: "চানাজাওবা",
+  Ngangbi: "ঙাংবি", Lalrin: "লালৰিন", Bikash: "বিকাশ",
+  Mona: "মোনা", Ibha: "ইভা", Lobsang: "লোবচাং",
+};
+
+const AS_WORD_MAP = {
+  Hospital: "চিকিৎসালয়", Market: "বজাৰ", Park: "উদ্যান",
+  School: "বিদ্যালয়", River: "নদী", Lake: "হ্ৰদ",
+  Field: "পথাৰ", Garden: "বাগিচা", Kitchen: "পাকঘৰ",
+  Veranda: "বাৰান্দা", Porch: "বাৰান্দা",
+  Guwahati: "গুৱাহাটী", Shillong: "শ্বিলং", Imphal: "ইম্ফাল",
+  Aizawl: "আইজল", Itanagar: "ইটানগৰ", Kohima: "কোহিমা",
+  Dimapur: "ডিমাপুৰ", Forest: "হাবি",
+  bananas: "কল", milk: "গাখীৰ", fish: "মাছ", crabs: "কুঁজি",
+  oranges: "কমলা", pineapple: "আনাৰস", kiwi: "কিৱি", litchi: "লিচু",
+  umbrella: "চাতি", blanket: "কম্বল", basket: "পাচি", bag: "মোনা",
+  rice: "ভাত", tea: "চাহ", vegetables: "পাচলি", fruit: "ফল",
+  khar: "খাৰ", thukpa: "থুকপা", momos: "মোমো", pitha: "পিঠা",
+  jadoh: "জাডো", "fish tenga": "মাছ তেঙা",
+  breakfast: "পুৱাৰ আহাৰ", lunch: "দুপৰীয়াৰ আহাৰ", dinner: "নিশাৰ আহাৰ",
+  morning: "পুৱা", evening: "সন্ধিয়া", afternoon: "দুপৰীয়া",
+  home: "ঘৰ", market: "বজাৰ", river: "নদী", garden: "বাগিচা",
+  family: "পৰিয়াল", friend: "বন্ধু", neighbor: "চুবুৰীয়া",
+  grandfather: "ককা", grandmother: "আই", father: "দেউতা", mother: "মা",
+  son: "পুতেক", daughter: "জীয়েক", husband: "স্বামী", wife: "পত্নী",
+  happy: "সুখী", tired: "ক্লান্ত", proud: "গৌৰৱান্বিত",
+  "bamboo shoot": "বাঁহৰ কোঁৱলীয়া", pickle: "আচাৰ",
+  Where: "ক'ত", What: "কি", Who: "কোন", Why: "কিয়", How: "কেনেকৈ",
+};
+
+function buildAssameseStoryContent(content) {
+  return Object.fromEntries(
+    Object.entries(content).map(([level, stories]) => [
+      level,
+      stories.map((story) => ({
+        ...story,
+        text: replaceAssameseWords(story.text),
+        questions: story.questions.map((item) => ({
+          ...item,
+          question: replaceAssameseWords(item.question),
+          options: item.options.map((opt) => replaceAssameseWords(opt)),
+        })),
+      })),
+    ]),
+  );
+}
+
+function replaceAssameseWords(text) {
+  let out = String(text);
+  const entries = Object.entries(AS_NAME_MAP).concat(Object.entries(AS_WORD_MAP));
+  entries.sort((a, b) => b[0].length - a[0].length);
+  for (const [en, as] of entries) {
+    if (!en) continue;
+    const pattern = new RegExp(`\\b${escapeRegExp(en)}\\b`, "gi");
+    out = out.replace(pattern, as);
+  }
+  return out;
+}
+
+// ─── Bengali translation helpers ─────────────────────────────────────────────
+
+const BN_NAME_MAP = {
+  Ravi: "রবি", Tenzin: "তেনজিন", Ima: "ইমা", Binod: "বিনোদ",
+  Lily: "লিলি", Robin: "রবিন", Anup: "অনুপ", Deepa: "দীপা",
+  Momi: "মোমি", Ratan: "রতন", Suman: "সুমন", Ranjit: "রণজিৎ",
+  Sanju: "সঞ্জু", Ema: "এমা", Toshi: "তোশি", Mimi: "মিমি",
+  Karma: "কর্ম", Nita: "নিতা", Aiba: "আইবা", Wangba: "ওয়াংবা",
+  Peter: "পিটার", Lucy: "লুসি", Doni: "দোনি", Ashi: "আশি",
+  Kevi: "কেভি", Sentila: "সেন্তিলা", Neikho: "নেইখো", Vilato: "ভিলাটো",
+  Lalawmpuia: "লালওয়াম্পুইয়া", Zoremi: "জোরেমি", Malsawma: "মালসাওমা",
+  Rinsangi: "রিনসাঙি", Bidya: "বিদ্যা", Tapan: "তপন", Deben: "দেবেন",
+  Ruma: "রুমা", Priya: "প্রিয়া", Arjun: "অর্জুন", Nokchan: "নোকচান",
+  Aben: "আবেন", Sanen: "সানেন", Vilie: "ভিলিয়ে", Meena: "মিনা",
+  Diki: "দিকি", Ibemhal: "ইবেমহাল", Sanajaoba: "সানাজাওবা",
+  Ngangbi: "ন্গাংবি", Lalrin: "লালরিন", Bikash: "বিকাশ",
+  Mona: "মোনা", Ibha: "ইভা", Lobsang: "লোবসাং",
+};
+
+const BN_WORD_MAP = {
+  Hospital: "হাসপাতাল", Market: "বাজার", Park: "উদ্যান",
+  School: "বিদ্যালয়", River: "নদী", Lake: "হ্রদ",
+  Field: "মাঠ", Garden: "বাগান", Kitchen: "রান্নাঘর",
+  Veranda: "বারান্দা", Porch: "বারান্দা",
+  Guwahati: "গুয়াহাটি", Shillong: "শিলং", Imphal: "ইম্ফল",
+  Aizawl: "আইজল", Itanagar: "ইটানগর", Kohima: "কোহিমা",
+  Dimapur: "ডিমাপুর", Forest: "বন",
+  bananas: "কলা", milk: "দুধ", fish: "মাছ", crabs: "কাঁকড়া",
+  oranges: "কমলালেবু", pineapple: "আনারস", kiwi: "কিউই", litchi: "লিচু",
+  umbrella: "ছাতা", blanket: "কম্বল", basket: "ঝুড়ি", bag: "ব্যাগ",
+  rice: "ভাত", tea: "চা", vegetables: "সবজি", fruit: "ফল",
+  khar: "খার", thukpa: "থুকপা", momos: "মোমো", pitha: "পিঠা",
+  jadoh: "জাডো", "fish tenga": "মাছ তেঙা",
+  breakfast: "সকালের খাবার", lunch: "দুপুরের খাবার", dinner: "রাতের খাবার",
+  morning: "সকাল", evening: "সন্ধ্যা", afternoon: "দুপুর",
+  home: "বাড়ি", market: "বাজার", river: "নদী", garden: "বাগান",
+  family: "পরিবার", friend: "বন্ধু", neighbor: "প্রতিবেশী",
+  grandfather: "দাদা", grandmother: "দাদি", father: "বাবা", mother: "মা",
+  son: "ছেলে", daughter: "মেয়ে", husband: "স্বামী", wife: "স্ত্রী",
+  happy: "সুখী", tired: "ক্লান্ত", proud: "গর্বিত",
+  "bamboo shoot": "বাঁশের কোঁড়া", pickle: "আচার",
+  Where: "কোথায়", What: "কী", Who: "কে", Why: "কেন", How: "কীভাবে",
+};
+
+function buildBengaliStoryContent(content) {
+  return Object.fromEntries(
+    Object.entries(content).map(([level, stories]) => [
+      level,
+      stories.map((story) => ({
+        ...story,
+        text: replaceBengaliWords(story.text),
+        questions: story.questions.map((item) => ({
+          ...item,
+          question: replaceBengaliWords(item.question),
+          options: item.options.map((opt) => replaceBengaliWords(opt)),
+        })),
+      })),
+    ]),
+  );
+}
+
+function replaceBengaliWords(text) {
+  let out = String(text);
+  const entries = Object.entries(BN_NAME_MAP).concat(Object.entries(BN_WORD_MAP));
+  entries.sort((a, b) => b[0].length - a[0].length);
+  for (const [en, bn] of entries) {
+    if (!en) continue;
+    const pattern = new RegExp(`\\b${escapeRegExp(en)}\\b`, "gi");
+    out = out.replace(pattern, bn);
+  }
+  return out;
+}
+
+// ─── Export ───────────────────────────────────────────────────────────────────
+
 const storyContent = {
   en: englishStoryContent,
   hi: buildHindiStoryContent(englishStoryContent),
+  as: buildAssameseStoryContent(englishStoryContent),
+  bn: buildBengaliStoryContent(englishStoryContent),
 };
 
 export default storyContent;
