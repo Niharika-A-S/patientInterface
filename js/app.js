@@ -1,12 +1,13 @@
 import { el, clear, header, levelSubtitle } from "./ui.js";
 import { t, tf } from "./i18n.js";
-import { speak, setVoiceLang } from "./voice.js";
+import { speak, speakKey, setVoiceLang } from "./voice.js";
 import {
   ensurePatient,
   getLanguage,
   getPatient,
   getPlayLevel,
   isProfileComplete,
+  logoutPatient,
   GAME_TYPES,
   setLanguage,
   SUPPORTED_LANGUAGES,
@@ -40,7 +41,6 @@ const LANGUAGE_KEYS = {
   en: "english",
   hi: "hindi",
   as: "assamese",
-  bn: "bengali",
   ne: "nepali",
 };
 
@@ -49,7 +49,7 @@ async function showHome(root) {
   const patient = await getPatient();
   setVoiceLang(lang);
   if (!homeIntroSpoken) {
-    speak(t(lang, "appTag"));
+    speakKey(lang, "appTag", t(lang, "appTag"));
     homeIntroSpoken = true;
   }
 
@@ -115,6 +115,16 @@ async function showHome(root) {
         onComplete: () => showHome(root),
       }),
     }, t(lang, "profileEdit")),
+    el("button", {
+      className: "btn btn-light",
+      type: "button",
+      style: { width: "100%", marginTop: "8px" },
+      onClick: async () => {
+        await logoutPatient();
+        homeIntroSpoken = false;
+        await mountProfile(root, { onComplete: () => showHome(root) });
+      },
+    }, t(lang, "logout")),
   ));
 }
 

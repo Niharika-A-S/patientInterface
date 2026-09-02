@@ -1,6 +1,6 @@
 import { el, clear, header, summaryView, levelSubtitle } from "../ui.js";
 import { t, tf } from "../i18n.js";
-import { speak, speakStory, setVoiceLang } from "../voice.js";
+import { speak, speakKey, speakStory, setVoiceLang } from "../voice.js";
 import { applyAdaptiveAndSave, GAME_TYPES } from "../db.js";
 import { clampLevel } from "../adaptive.js";
 import storyContent from "../content/storyContent.js";
@@ -121,10 +121,10 @@ export function mountRememberMyStory(root, { lang, level, onHome }) {
     responseTimes.push(Date.now() - questionStart);
     setVoiceLang(lang);
     if (option.correct) {
-      speak(t(lang, "nice"));
+      speakKey(lang, "nice", t(lang, "nice"));
     } else {
       mistakes += 1;
-      speak(t(lang, "tryAgain"));
+      speakKey(lang, "tryAgain", t(lang, "tryAgain"));
     }
     questionIndex += 1;
     if (questionIndex >= questions.length) {
@@ -159,7 +159,7 @@ export function mountRememberMyStory(root, { lang, level, onHome }) {
       },
     });
     resumeLevel = nextPlayLevel;
-    speak(t(lang, "wellDone"));
+    speakKey(lang, "wellDone", t(lang, "wellDone"));
     render(true, {
       level: activeLevel,
       accuracyPercent,

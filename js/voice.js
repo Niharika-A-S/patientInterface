@@ -4,14 +4,14 @@ const LANG_MAP = {
   en: "en-IN",
   hi: "hi-IN",
   as: "as-IN",
-  bn: "bn-IN",
+  // ne uses MP3 files; ne-NP is here as a reference only (never used for TTS)
+  ne: "ne-NP",
 };
 
 const LANG_PREFIX = {
   en: "en",
   hi: "hi",
   as: "as",
-  bn: "bn",
 };
 
 let currentLang = "en";
@@ -60,12 +60,22 @@ function ensureResumeWatch() {
 function pickVoice() {
   const voices = window.speechSynthesis.getVoices() || [];
   if (!voices.length) return null;
-  const wanted = LANG_MAP[currentLang] || LANG_MAP.en;
-  const prefix = LANG_PREFIX[currentLang] || "en";
+  const wanted = LANG_MAP[currentLang];
+  const prefix = LANG_PREFIX[currentLang];
+  // For English: exact match → prefix match → any English voice
+  if (currentLang === "en") {
+    return (
+      voices.find((v) => v.lang === wanted)
+      || voices.find((v) => (v.lang || "").toLowerCase().startsWith("en"))
+      || null
+    );
+  }
+  // For Hindi / Assamese: exact match → prefix match only.
+  // Do NOT fall back to English — that would speak the wrong language.
+  if (!wanted || !prefix) return null;
   return (
     voices.find((v) => v.lang === wanted)
     || voices.find((v) => (v.lang || "").toLowerCase().startsWith(prefix))
-    || voices.find((v) => (v.lang || "").toLowerCase().startsWith("en"))
     || null
   );
 }
@@ -80,10 +90,17 @@ function startUtterance(text, generation) {
     return;
   }
 
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = LANG_MAP[currentLang] || LANG_MAP.en;
-  utterance.rate = 0.9;
   const voice = pickVoice();
+  // If no matching voice found for the selected language, fail gracefully.
+  // Do NOT speak with an English voice when Hindi or Assamese is selected.
+  if (!voice && currentLang !== "en") {
+    console.warn("[voice] No", currentLang, "voice available on this device — skipping TTS.");
+    return;
+  }
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = LANG_MAP[currentLang] || "en-IN";
+  utterance.rate = 0.9;
   if (voice) utterance.voice = voice;
 
   utterance.onend = () => {
@@ -208,19 +225,17 @@ const NE_INTERFACE_AUDIO = {
 };
 
 // ─── Nepali story audio map ───────────────────────────────────────────────────
-// Maps story IDs (from storyContent.js) to their Nepali MP3 file and the
-// startTime (in seconds) at which that story begins within the file.
-//
-//  l1_s1 → story1,2.mp3 starting at 0:00
-//  l1_s2 → story1,2.mp3 starting at 0:29  (second story in the combined file)
-//  l1_s3 → story3.mp3   starting at 0:00
-//  l1_s4 → story4.mp3   starting at 0:00
+// Maps story IDs to their Nepali MP3 file, startTime (seconds), and
+// optional stopTime (seconds) — used to prevent l1_s1 from running into
+// the second story that begins at 29 s in story1,2.mp3.
 const NE_STORY_AUDIO = {
-  l1_s1: { src: "./assets/story_voice/story1,2.mp3", startTime: 0  },
-  // story1,2.mp3 is a single file containing two stories; l1_s2 begins at 29 s
-  l1_s2: { src: "./assets/story_voice/story1,2.mp3", startTime: 29 },
-  l1_s3: { src: "./assets/story_voice/story3.mp3",   startTime: 0  },
-  l1_s4: { src: "./assets/story_voice/story4.mp3",   startTime: 0  },
+  // story1,2.mp3 contains two stories.
+  // l1_s1 starts at 0 s and must stop at 29 s (before story 2 begins).
+  l1_s1: { src: "./assets/story_voice/story1,2.mp3", startTime: 0,  stopTime: 29 },
+  // l1_s2 starts at 29 s (the second story in the combined file).
+  l1_s2: { src: "./assets/story_voice/story1,2.mp3", startTime: 29, stopTime: null },
+  l1_s3: { src: "./assets/story_voice/story3.mp3",  startTime: 0,  stopTime: null },
+  l1_s4: { src: "./assets/story_voice/story4.mp3",  startTime: 0,  stopTime: null },
 };
 
 /**
@@ -259,7 +274,7 @@ export function speakStory(lang, storyId, text) {
   if (lang === "ne") {
     const entry = NE_STORY_AUDIO[storyId];
     if (entry) {
-      speak(null, entry.src, entry.startTime);
+      speak(null, entry.src, entry.startTime, entry.stopTime ?? null);
     } else {
       // Unmapped Nepali story — silently skip rather than fall through to TTS
       console.warn("[voice] No Nepali story audio mapped for id:", storyId);
@@ -269,7 +284,7 @@ export function speakStory(lang, storyId, text) {
   speak(text);
 }
 
-export function speak(text, audioSrc = null, startTime = 0) {
+export function speak(text, audioSrc = null, startTime = 0, stopTime = null) {
   if (text == null && !audioSrc) return;
   const next = text != null ? String(text).trim() : "";
   if (!next && !audioSrc) return;
@@ -286,8 +301,8 @@ export function speak(text, audioSrc = null, startTime = 0) {
       const audio = new Audio(audioSrc);
       currentAudio = audio;
       if (startTime > 0) {
-        // Set the seek position once the browser has enough data.
-        // story1,2.mp3: l1_s2 narration begins at 29 seconds into the file.
+        // Seek to startTime once the browser has buffered enough.
+        // story1,2.mp3: l1_s2 narration begins at 29 seconds.
         audio.addEventListener("canplaythrough", () => {
           if (currentAudio !== audio) return; // superseded by a newer request
           audio.currentTime = startTime;
@@ -297,8 +312,19 @@ export function speak(text, audioSrc = null, startTime = 0) {
       } else {
         audio.play().catch(e => console.warn("[voice] Audio play failed:", e));
       }
+      // If a stopTime is set, pause the audio at that timestamp.
+      // This prevents l1_s1 from bleeding into the second story in story1,2.mp3.
+      if (stopTime != null) {
+        audio.addEventListener("timeupdate", () => {
+          if (currentAudio !== audio) return;
+          if (audio.currentTime >= stopTime) {
+            audio.pause();
+            currentAudio = null;
+          }
+        });
+      }
     } else {
-      console.warn("[voice] Nepali audio requested but no MP3 mapped for text:", text);
+      console.warn("[voice] Nepali audio requested but no MP3 mapped.", text ? `Text: ${text}` : "");
     }
     return; // Never fall through to SpeechSynthesis for Nepali
   }

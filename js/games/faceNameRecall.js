@@ -1,6 +1,6 @@
 import { el, clear, header, summaryView, levelSubtitle } from "../ui.js";
 import { t } from "../i18n.js";
-import { speak } from "../voice.js";
+import { speak, speakKey } from "../voice.js";
 import { applyAdaptiveAndSave, GAME_TYPES, listFamilyMembers } from "../db.js";
 import { clampLevel } from "../adaptive.js";
 import { buildFaceSession, choiceText } from "../content/faceNameContent.js";
@@ -108,9 +108,9 @@ export async function mountFaceNameRecall(root, { lang, level, onHome }) {
     responseTimes.push(Date.now() - roundStart);
     if (person.id === current().target.id) {
       correctCount += 1;
-      speak(t(lang, "nice"));
+      speakKey(lang, "nice", t(lang, "nice"));
     } else {
-      speak(t(lang, "tryAgain"));
+      speakKey(lang, "tryAgain", t(lang, "tryAgain"));
     }
     roundIndex += 1;
     if (roundIndex >= rounds.length) {
@@ -137,7 +137,7 @@ export async function mountFaceNameRecall(root, { lang, level, onHome }) {
       totalTimeSeconds,
     });
     resumeLevel = nextPlayLevel;
-    speak(t(lang, "wellDone"));
+    speakKey(lang, "wellDone", t(lang, "wellDone"));
     render(true, {
       level: activeLevel,
       accuracyPercent,

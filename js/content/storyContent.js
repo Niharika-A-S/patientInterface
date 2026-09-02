@@ -1402,10 +1402,7 @@ const englishStoryContent = {
         { question: "What did Ibemhal cook?", options: ["Fish tenga", "Khar", "Pitha"], correctIndex: 0 },
         { question: "When did Sanajaoba buy the fish?", options: ["That morning", "The night before", "A week earlier"], correctIndex: 0 },
         { question: "Why did Ngangbi stop by?", options: ["To return a borrowed umbrella", "To borrow rice", "To visit"], correctIndex: 0 },
-        { question: "What did their grandmother say about the food?", options: ["It reminded her of meals she used to cook", "It was too spicy", "It needed more salt"], correctIndex: 0 }
-      ]
-    },
-    {
+      ],
       id: "l4_s6",
       text: "Kevi and his wife Sentila owned a small orchard near Kohima where they grew kiwi and passion fruit. Every harvest season, their daughter Neikho came home from the city to help with the picking. This year, a fruit trader named Vilato visited to negotiate a bulk purchase of kiwi for the city market. Kevi and Sentila agreed to sell him a large basket, though they kept some fruit aside for the family. Neikho spent the afternoon packing baskets while telling her parents stories about her life in the city. Before leaving, Vilato promised to return next season for another purchase.",
       questions: [
@@ -1614,13 +1611,112 @@ function replaceBengaliWords(text) {
   return out;
 }
 
+// ─── Nepali story content ───────────────────────────────────────────────────
+// Natural Nepali translations of Level 1 stories l1_s1–l1_s4.
+// Story IDs, level numbers, correctIndex values and question structure are
+// preserved exactly from englishStoryContent.  Only displayed text is changed.
+
+const nepaliStoryContent = {
+  1: [
+    {
+      id: "l1_s1",
+      text: "रवि बिहान बजार गयो। उसले केरा र दूध किन्यो। त्यसपछि घर फर्किएर उसले केरा आफ्नी छोरीलाई दियो।",
+      questions: [
+        {
+          question: "रवि कहाँ गयो?",
+          options: ["अस्पताल", "बजार", "पार्क"],
+          correctIndex: 1
+        },
+        {
+          question: "उसले के किन्यो?",
+          options: ["केरा र दूध", "चामल र अण्डा", "रोटी र चिया"],
+          correctIndex: 0
+        },
+        {
+          question: "उसले केरा कसलाई दियो?",
+          options: ["आफ्नी छोरीलाई", "आफ्नो छोरालाई", "आफ्नो छिमेकीलाई"],
+          correctIndex: 0
+        }
+      ]
+    },
+    {
+      id: "l1_s2",
+      text: "तेन्जिन बिहान कोहिमाको बजारमा गयो। उसले ताजा अनन्नास र चियापत्तीको प्याकेट किन्यो। घर फर्किने बाटोमा उसले आफ्नो छिमेकीलाई भेटेर अभिवादन गर्‍यो। साँझमा उसले परिवारसँग अनन्नास बाँडेर खायो।",
+      questions: [
+        {
+          question: "तेन्जिन कहाँ गयो?",
+          options: ["अस्पताल", "बजार", "विद्यालय"],
+          correctIndex: 1
+        },
+        {
+          question: "उसले के किन्यो?",
+          options: ["अनन्नास र चियापत्ती", "चामल र माछा", "रोटी र दूध"],
+          correctIndex: 0
+        },
+        {
+          question: "उसले अनन्नास कसलाई बाँड्यो?",
+          options: ["परिवारलाई", "छिमेकीलाई", "साथीलाई"],
+          correctIndex: 0
+        }
+      ]
+    },
+    {
+      id: "l1_s3",
+      text: "इमाले आज दिउँसो खारको लागि खाना पकाइन्। उनले भाँडोमा बाँसको कोपिला र कच्चा पपीता हालिन्। उनको नाति विद्यालयबाट घर आउँदा ढोकाबाटै खानाको गन्ध थाहा पायो। आफ्नो मनपर्ने खाना देखेर उ धेरै खुसी भयो।",
+      questions: [
+        {
+          question: "इमाले के पकाइन्?",
+          options: ["खार", "थुकपा", "मोमो"],
+          correctIndex: 0
+        },
+        {
+          question: "विद्यालयबाट घर को आयो?",
+          options: ["उनको नाति", "उनको छोरा", "उनको छिमेकी"],
+          correctIndex: 0
+        },
+        {
+          question: "उ कस्तो महसुस गर्‍यो?",
+          options: ["खुसी", "रिसाहा", "थाकेको"],
+          correctIndex: 0
+        }
+      ]
+    },
+    {
+      id: "l1_s4",
+      text: "बिनोद र उनकी श्रीमती साप्ताहिक बजार हेर्न दिमापुर गए। उनीहरूले एक टोकरी सुन्तला र केही ताजा माछा किने। फर्किने बाटोमा वर्षा सुरु भयो, त्यसैले उनीहरू एउटा चियाको पसलमुनि पर्खिए।",
+      questions: [
+        {
+          question: "उनीहरू कुन सहरको बजार हेर्न गए?",
+          options: ["दिमापुर", "गुवाहाटी", "शिलंग"],
+          correctIndex: 0
+        },
+        {
+          question: "उनीहरूले के के किने?",
+          options: ["सुन्तला र माछा", "चामल र तरकारी", "दूध र अण्डा"],
+          correctIndex: 0
+        },
+        {
+          question: "उनीहरू चियाको पसलमुनि किन रोकिए?",
+          options: ["वर्षा सुरु भएकोले", "भोकाएकोले", "साथी भेटेकोले"],
+          correctIndex: 0
+        }
+      ]
+    },
+    // Remaining Level 1 stories use English text (no Nepali audio beyond l1_s4).
+    ...englishStoryContent[1].slice(4),
+  ],
+  // Level 2 and 3 fall back to English until Nepali translations are added.
+  2: englishStoryContent[2],
+  3: englishStoryContent[3],
+};
+
 // ─── Export ───────────────────────────────────────────────────────────────────
 
 const storyContent = {
   en: englishStoryContent,
   hi: buildHindiStoryContent(englishStoryContent),
   as: buildAssameseStoryContent(englishStoryContent),
-  bn: buildBengaliStoryContent(englishStoryContent),
+  ne: nepaliStoryContent,
 };
 
 export default storyContent;

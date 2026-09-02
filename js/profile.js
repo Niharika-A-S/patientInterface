@@ -1,6 +1,6 @@
 import { el, clear, header } from "./ui.js";
 import { t } from "./i18n.js";
-import { speak, setVoiceLang } from "./voice.js";
+import { speak, speakKey, setVoiceLang } from "./voice.js";
 import {
   getPatient,
   savePatientProfile,
@@ -46,7 +46,7 @@ const LANGUAGE_KEYS = {
   en: "english",
   hi: "hindi",
   as: "assamese",
-  bn: "bengali",
+  ne: "nepali",
 };
 
 function phoneDigits(raw) {
@@ -175,8 +175,8 @@ export async function mountProfile(root, { onComplete, allowSkipBack = false, on
       ),
     );
 
-    Object.entries(state.errors).forEach(([key, message]) => {
-      errorBox.append(el("p", { id: `profile-err-${key}`, className: "profile-error" }, message));
+    Object.entries(state.errors).forEach(([field, err]) => {
+      errorBox.append(el("p", { id: `profile-err-${field}`, className: "profile-error" }, err.message));
     });
 
     const langPick = languageButtons(lang, state.language, (code) => {
@@ -212,26 +212,26 @@ export async function mountProfile(root, { onComplete, allowSkipBack = false, on
       ),
     );
 
-    speak(t(lang, "profileSubtitle"));
+    speakKey(lang, "profileSubtitle", t(lang, "profileSubtitle"));
   }
 
   function validate() {
     const lang = uiLang();
-    const errors = {};
+    const errors = {};      // field → { message, key }
     state.name = String(state.name || "").trim();
     state.phone = String(state.phone || "").trim();
     state.state = String(state.state || "").trim();
 
-    if (!state.name) errors.name = t(lang, "errNameRequired");
-    else if (!isValidName(state.name)) errors.name = t(lang, "errNameShort");
+    if (!state.name)                errors.name     = { message: t(lang, "errNameRequired"),  key: "errNameRequired" };
+    else if (!isValidName(state.name)) errors.name  = { message: t(lang, "errNameShort"),     key: "errNameShort" };
 
-    if (!state.phone) errors.phone = t(lang, "errPhoneRequired");
-    else if (!isValidPhone(state.phone)) errors.phone = t(lang, "errPhoneInvalid");
+    if (!state.phone)               errors.phone    = { message: t(lang, "errPhoneRequired"), key: "errPhoneRequired" };
+    else if (!isValidPhone(state.phone)) errors.phone = { message: t(lang, "errPhoneInvalid"), key: "errPhoneInvalid" };
 
-    if (!state.state) errors.state = t(lang, "errStateRequired");
+    if (!state.state)               errors.state    = { message: t(lang, "errStateRequired"), key: "errStateRequired" };
 
     if (!SUPPORTED_LANGUAGES.includes(normalizeLanguage(state.language))) {
-      errors.language = t(lang, "errLanguageRequired");
+      errors.language = { message: t(lang, "errLanguageRequired"), key: "errLanguageRequired" };
     }
 
     state.errors = errors;
@@ -241,8 +241,10 @@ export async function mountProfile(root, { onComplete, allowSkipBack = false, on
   async function submit() {
     if (!validate()) {
       render();
+      // errors values are now { message, key } objects — speak via key so
+      // Nepali routes to the correct interface MP3 rather than no-opping.
       const firstError = Object.values(state.errors)[0];
-      if (firstError) speak(firstError);
+      if (firstError) speakKey(uiLang(), firstError.key, firstError.message);
       return;
     }
 

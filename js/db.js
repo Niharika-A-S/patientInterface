@@ -2,7 +2,7 @@ import { clampLevel, describeAdaptive } from "./adaptive.js";
 
 const DEFAULT_PATIENT_ID = 1;
 
-export const SUPPORTED_LANGUAGES = ["en", "hi", "as", "bn", "ne"];
+export const SUPPORTED_LANGUAGES = ["en", "hi", "as", "ne"];
 
 export function normalizeLanguage(lang) {
   const code = String(lang || "en").toLowerCase();
@@ -152,6 +152,22 @@ export async function getLanguage() {
 export async function setLanguage(language) {
   await db.patients.update(DEFAULT_PATIENT_ID, {
     language: normalizeLanguage(language),
+  });
+}
+
+/**
+ * logoutPatient — clears the patient's identifying fields so that
+ * isProfileComplete() returns false and the app routes back to the profile
+ * / login screen on the next load or on a manual call.
+ *
+ * Does NOT delete the patient row, the language preference, or any game
+ * progress / history rows.
+ */
+export async function logoutPatient() {
+  await db.patients.update(DEFAULT_PATIENT_ID, {
+    name: "",
+    phone: "",
+    state: "",
   });
 }
 

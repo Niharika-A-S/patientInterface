@@ -1,6 +1,6 @@
 import { el, clear, header, summaryView, levelSubtitle } from "../ui.js";
 import { t } from "../i18n.js";
-import { speak } from "../voice.js";
+import { speak, speakKey } from "../voice.js";
 import { applyAdaptiveAndSave, GAME_TYPES } from "../db.js";
 import { clampLevel } from "../adaptive.js";
 import {
@@ -124,7 +124,7 @@ export function mountPatternMatching(root, { lang, level, onHome }) {
     mountPatternMatching(root, { lang, level: resumeLevel, onHome });
   }
 
-  speak(t(lang, "patternHelp"));
+  speakKey(lang, "patternHelp", t(lang, "patternHelp"));
   render();
 
   function render(complete = false, summary = null) {
@@ -225,7 +225,7 @@ export function mountPatternMatching(root, { lang, level, onHome }) {
       extra: { grid_size: cards.length, correct_matches: correctMatches },
     });
     resumeLevel = nextPlayLevel;
-    speak(t(lang, "wellDone"));
+    speakKey(lang, "wellDone", t(lang, "wellDone"));
     render(true, {
       level: activeLevel,
       accuracyPercent,

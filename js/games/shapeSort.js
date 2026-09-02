@@ -1,6 +1,6 @@
 import { el, clear, header, summaryView, levelSubtitle } from "../ui.js";
 import { t } from "../i18n.js";
-import { speak } from "../voice.js";
+import { speak, speakKey } from "../voice.js";
 import { applyAdaptiveAndSave, GAME_TYPES } from "../db.js";
 import { clampLevel } from "../adaptive.js";
 import { buildShapeSortRound, matchesRule } from "../content/shapeSortContent.js";
@@ -126,7 +126,7 @@ export function mountShapeSort(root, { lang, level, onHome }) {
 
     if (targetIds.has(item.id)) {
       foundIds.add(item.id);
-      speak(t(lang, "nice"));
+      speakKey(lang, "nice", t(lang, "nice"));
       if (allTargetsFound()) finish();
       else render();
       return;
@@ -134,7 +134,7 @@ export function mountShapeSort(root, { lang, level, onHome }) {
 
     wrongTaps += 1;
     lastWrongId = item.id;
-    speak(t(lang, "tryAgain"));
+    speakKey(lang, "tryAgain", t(lang, "tryAgain"));
     render();
   }
 
@@ -169,7 +169,8 @@ export function mountShapeSort(root, { lang, level, onHome }) {
       },
     });
     resumeLevel = nextPlayLevel;
-    speak(allTargetsFound() ? t(lang, "allFound") : t(lang, "wellDone"));
+    speakKey(lang, allTargetsFound() ? "allFound" : "wellDone",
+             t(lang, allTargetsFound() ? "allFound" : "wellDone"));
     clear(root);
     root.append(
       header(lang, { title: t(lang, "shapeName"), subtitle: levelSubtitle(lang, activeLevel), onBack: onHome }),
@@ -188,6 +189,6 @@ export function mountShapeSort(root, { lang, level, onHome }) {
 function foundLabel(lang, found, total) {
   if (lang === "hi") return `${found} / ${total} मिल गए`;
   if (lang === "as") return `${found} / ${total} বিচাৰি পোৱা হ'ল`;
-  if (lang === "bn") return `${found} / ${total} পাওয়া গেছে`;
+  if (lang === "ne") return `${found} / ${total} फेला पर्‍यो`;
   return `Found ${found} of ${total}`;
 }
