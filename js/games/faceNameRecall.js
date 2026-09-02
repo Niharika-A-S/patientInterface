@@ -49,7 +49,7 @@ export async function mountFaceNameRecall(root, { lang, level, onHome }) {
 
   function speakRound() {
     const round = current();
-    if (round) speak(round.prompt);
+    if (round) speakKey(lang, round.prompt.key, round.prompt.text);
   }
 
   function render(complete = false, summary = null) {
@@ -68,7 +68,7 @@ export async function mountFaceNameRecall(root, { lang, level, onHome }) {
 
     const round = current();
     const body = el("main", { className: "screen" },
-      el("p", { className: "instruction" }, round.prompt),
+      el("p", { className: "instruction" }, round.prompt.text),
     );
 
     if (round.mode === "photos") {

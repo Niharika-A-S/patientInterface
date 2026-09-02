@@ -3,10 +3,10 @@ import { tRel, tf } from "../i18n.js";
 const ROUNDS_PER_LEVEL = 3;
 
 export function promptForLevel(lang, level, target) {
-  if (level === 1) return tf(lang, "facePromptWho");
-  if (level === 2) return tf(lang, "facePromptWhoRelated");
-  if (level === 3) return tf(lang, "facePromptRelated");
-  return tf(lang, "facePromptWhich", { rel: tRel(lang, target.relationshipKey) });
+  if (level === 1) return { key: "facePromptWho", text: tf(lang, "facePromptWho") };
+  if (level === 2) return { key: "facePromptWhoRelated", text: tf(lang, "facePromptWhoRelated") };
+  if (level === 3) return { key: "facePromptRelated", text: tf(lang, "facePromptRelated") };
+  return { key: "facePromptWhich", text: tf(lang, "facePromptWhich", { rel: tRel(lang, target.relationshipKey) }) };
 }
 
 export function choiceText(lang, person, level) {

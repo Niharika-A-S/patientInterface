@@ -1,6 +1,7 @@
 import { el, clear, header } from "./ui.js";
 import { t, tRel, RELATIONSHIP_KEYS } from "./i18n.js";
 import { listFamilyMembers, addFamilyMember, deleteFamilyMember } from "./db.js";
+import { speakKey } from "./voice.js";
 
 export async function mountFamilyPhotos(root, { lang, onBack, onPlay }) {
   await render();
@@ -9,6 +10,7 @@ export async function mountFamilyPhotos(root, { lang, onBack, onPlay }) {
     const people = await listFamilyMembers();
     clear(root);
     root.append(header(lang, { title: t(lang, "familyPhotos"), onBack }));
+    speakKey(lang, "familyPhotos", t(lang, "familyPhotos"), true);
 
     const list = el("div", { className: "family-list" });
     people.forEach((person) => {

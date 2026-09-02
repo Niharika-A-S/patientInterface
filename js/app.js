@@ -40,32 +40,40 @@ export async function startApp(root) {
 const LANGUAGE_KEYS = {
   en: "english",
   hi: "hindi",
+  bn: "bengali",
   as: "assamese",
-  ne: "nepali",
 };
 
 async function showHome(root) {
   const lang = await getLanguage();
   const patient = await getPatient();
   setVoiceLang(lang);
+
+  const useWelcome = Boolean(patient?.name);
+  const welcomeKey = useWelcome ? "welcomeName" : "appTag";
+  const welcomeText = useWelcome
+    ? tf(lang, "welcomeName", { name: patient.name })
+    : t(lang, "appTag");
+
   if (!homeIntroSpoken) {
-    speakKey(lang, "appTag", t(lang, "appTag"));
+    speakKey(lang, welcomeKey, welcomeText);
     homeIntroSpoken = true;
+  } else {
+    // Silently register the text/audio so the Repeat button is accurate when languages change.
+    speakKey(lang, welcomeKey, welcomeText, true);
   }
 
   clear(root);
   root.append(
     header(lang, {
       title: t(lang, "appTitle"),
-      subtitle: patient?.name
-        ? tf(lang, "welcomeName", { name: patient.name })
-        : t(lang, "appTag"),
+      subtitle: welcomeText,
     }),
   );
 
   const langSelector = el("div", { className: "lang-selector", style: { marginBottom: "16px" } },
     el("div", { style: { textAlign: "center", marginBottom: "8px", background: "#fff", padding: "12px", borderRadius: "8px", border: "1px solid #ddd", color: "#D85A30", fontWeight: "bold" } },
-      "🌐 Change language / Language"
+      t(lang, "changeLanguage")
     ),
     el("div", { style: { display: "flex", gap: "8px" } },
       ...SUPPORTED_LANGUAGES.map((code) =>

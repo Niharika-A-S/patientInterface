@@ -37,7 +37,7 @@ function tileContent(item) {
 
 export function mountShapeSort(root, { lang, level, onHome }) {
   const activeLevel = clampLevel(level);
-  const { spec, items, targetIds: targetIdList } = buildShapeSortRound(activeLevel);
+  const { spec, items, targetIds: targetIdList } = buildShapeSortRound(lang, activeLevel);
   const targetIds = new Set(targetIdList);
   const foundIds = new Set();
   let wrongTaps = 0;
@@ -55,8 +55,7 @@ export function mountShapeSort(root, { lang, level, onHome }) {
     mountShapeSort(root, { lang, level: resumeLevel, onHome });
   }
 
-  const instruction = spec.instruction[lang] || spec.instruction.en;
-  speak(instruction);
+  speakKey(lang, spec.instructionKey, spec.instructionText);
 
   if (spec.timeLimitMs) {
     timerId = setInterval(() => {
@@ -105,7 +104,7 @@ export function mountShapeSort(root, { lang, level, onHome }) {
     root.append(
       el("main", { className: "screen" },
         spec.timeLimitMs ? el("div", { className: "timer" }, `${Math.max(0, Math.ceil(remainingMs / 1000))}s`) : null,
-        el("p", { className: "instruction" }, instruction),
+        el("p", { className: "instruction" }, spec.instructionText),
         el("p", { className: "instruction" }, foundLabel(lang, foundIds.size, targetIds.size)),
         grid,
         el("button", {
@@ -187,8 +186,8 @@ export function mountShapeSort(root, { lang, level, onHome }) {
 }
 
 function foundLabel(lang, found, total) {
+  if (lang === "bn") return `${found} / ${total} টি পাওয়া গেছে`;
   if (lang === "hi") return `${found} / ${total} मिल गए`;
   if (lang === "as") return `${found} / ${total} বিচাৰি পোৱা হ'ল`;
-  if (lang === "ne") return `${found} / ${total} फेला पर्‍यो`;
   return `Found ${found} of ${total}`;
 }

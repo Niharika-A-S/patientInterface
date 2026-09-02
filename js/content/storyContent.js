@@ -1538,6 +1538,8 @@ function replaceAssameseWords(text) {
   return out;
 }
 
+
+
 // ─── Bengali translation helpers ─────────────────────────────────────────────
 
 const BN_NAME_MAP = {
@@ -1545,40 +1547,40 @@ const BN_NAME_MAP = {
   Lily: "লিলি", Robin: "রবিন", Anup: "অনুপ", Deepa: "দীপা",
   Momi: "মোমি", Ratan: "রতন", Suman: "সুমন", Ranjit: "রণজিৎ",
   Sanju: "সঞ্জু", Ema: "এমা", Toshi: "তোশি", Mimi: "মিমি",
-  Karma: "কর্ম", Nita: "নিতা", Aiba: "আইবা", Wangba: "ওয়াংবা",
+  Karma: "কর্মা", Nita: "নীতা", Aiba: "আইবা", Wangba: "ওয়াংবা",
   Peter: "পিটার", Lucy: "লুসি", Doni: "দোনি", Ashi: "আশি",
   Kevi: "কেভি", Sentila: "সেন্তিলা", Neikho: "নেইখো", Vilato: "ভিলাটো",
-  Lalawmpuia: "লালওয়াম্পুইয়া", Zoremi: "জোরেমি", Malsawma: "মালসাওমা",
-  Rinsangi: "রিনসাঙি", Bidya: "বিদ্যা", Tapan: "তপন", Deben: "দেবেন",
-  Ruma: "রুমা", Priya: "প্রিয়া", Arjun: "অর্জুন", Nokchan: "নোকচান",
-  Aben: "আবেন", Sanen: "সানেন", Vilie: "ভিলিয়ে", Meena: "মিনা",
-  Diki: "দিকি", Ibemhal: "ইবেমহাল", Sanajaoba: "সানাজাওবা",
-  Ngangbi: "ন্গাংবি", Lalrin: "লালরিন", Bikash: "বিকাশ",
+  Lalawmpuia: "লালাওয়ামপুইয়া", Zoremi: "জোরেমি", Malsawma: "মালসাওমা",
+  Rinsangi: "রিনসাঙ্গি", Bidya: "বিদ্যা", Tapan: "তপন", Deben: "দেবেন",
+  Ruma: "রুমা", Priya: "প্রিয়া", Arjun: "অর্জুন", Nokchan: "নকচান",
+  Aben: "আবেন", Sanen: "সানেন", Vilie: "ভিলিয়ে", Meena: "মীনা",
+  Diki: "দিকি", Ibemhal: "ইবেমহাল", Sanajaoba: "সনাজাওবা",
+  Ngangbi: "ঙাংবি", Lalrin: "লালরিন", Bikash: "বিকাশ",
   Mona: "মোনা", Ibha: "ইভা", Lobsang: "লোবসাং",
 };
 
 const BN_WORD_MAP = {
-  Hospital: "হাসপাতাল", Market: "বাজার", Park: "উদ্যান",
-  School: "বিদ্যালয়", River: "নদী", Lake: "হ্রদ",
+  Hospital: "হাসপাতাল", Market: "বাজার", Park: "পার্ক",
+  School: "স্কুল", River: "নদী", Lake: "লেক",
   Field: "মাঠ", Garden: "বাগান", Kitchen: "রান্নাঘর",
   Veranda: "বারান্দা", Porch: "বারান্দা",
   Guwahati: "গুয়াহাটি", Shillong: "শিলং", Imphal: "ইম্ফল",
   Aizawl: "আইজল", Itanagar: "ইটানগর", Kohima: "কোহিমা",
-  Dimapur: "ডিমাপুর", Forest: "বন",
+  Dimapur: "দিমাপুর", Forest: "জঙ্গল",
   bananas: "কলা", milk: "দুধ", fish: "মাছ", crabs: "কাঁকড়া",
   oranges: "কমলালেবু", pineapple: "আনারস", kiwi: "কিউই", litchi: "লিচু",
   umbrella: "ছাতা", blanket: "কম্বল", basket: "ঝুড়ি", bag: "ব্যাগ",
   rice: "ভাত", tea: "চা", vegetables: "সবজি", fruit: "ফল",
   khar: "খার", thukpa: "থুকপা", momos: "মোমো", pitha: "পিঠা",
-  jadoh: "জাডো", "fish tenga": "মাছ তেঙা",
-  breakfast: "সকালের খাবার", lunch: "দুপুরের খাবার", dinner: "রাতের খাবার",
+  jadoh: "জাদো", "fish tenga": "ফিশ টেঙ্গা",
+  breakfast: "সকালের প্রাতরাশ", lunch: "দুপুরের খাবার", dinner: "রাতের খাবার",
   morning: "সকাল", evening: "সন্ধ্যা", afternoon: "দুপুর",
   home: "বাড়ি", market: "বাজার", river: "নদী", garden: "বাগান",
   family: "পরিবার", friend: "বন্ধু", neighbor: "প্রতিবেশী",
-  grandfather: "দাদা", grandmother: "দাদি", father: "বাবা", mother: "মা",
+  grandfather: "দাদু", grandmother: "ঠাকুমা", father: "বাবা", mother: "মা",
   son: "ছেলে", daughter: "মেয়ে", husband: "স্বামী", wife: "স্ত্রী",
-  happy: "সুখী", tired: "ক্লান্ত", proud: "গর্বিত",
-  "bamboo shoot": "বাঁশের কোঁড়া", pickle: "আচার",
+  happy: "খুশি", tired: "ক্লান্ত", proud: "গর্বিত",
+  "bamboo shoot": "বাঁশের কোঁড়", pickle: "আচার",
   Where: "কোথায়", What: "কী", Who: "কে", Why: "কেন", How: "কীভাবে",
 };
 
@@ -1592,7 +1594,7 @@ function buildBengaliStoryContent(content) {
         questions: story.questions.map((item) => ({
           ...item,
           question: replaceBengaliWords(item.question),
-          options: item.options.map((opt) => replaceBengaliWords(opt)),
+          options: item.options.map(replaceBengaliWords),
         })),
       })),
     ]),
@@ -1600,114 +1602,56 @@ function buildBengaliStoryContent(content) {
 }
 
 function replaceBengaliWords(text) {
+  if (!text) return text;
   let out = String(text);
-  const entries = Object.entries(BN_NAME_MAP).concat(Object.entries(BN_WORD_MAP));
-  entries.sort((a, b) => b[0].length - a[0].length);
-  for (const [en, bn] of entries) {
-    if (!en) continue;
-    const pattern = new RegExp(`\\b${escapeRegExp(en)}\\b`, "gi");
-    out = out.replace(pattern, bn);
+  for (const [en, bn] of Object.entries(BN_WORD_MAP)) {
+    out = out.replace(new RegExp(`\\b${en}\\b`, "gi"), bn);
+  }
+  for (const [en, bn] of Object.entries(BN_NAME_MAP)) {
+    out = out.replace(new RegExp(`\\b${en}\\b`, "g"), bn);
   }
   return out;
 }
 
-// ─── Nepali story content ───────────────────────────────────────────────────
-// Natural Nepali translations of Level 1 stories l1_s1–l1_s4.
-// Story IDs, level numbers, correctIndex values and question structure are
-// preserved exactly from englishStoryContent.  Only displayed text is changed.
-
-const nepaliStoryContent = {
+const bengaliStoryContent = {
   1: [
     {
       id: "l1_s1",
-      text: "रवि बिहान बजार गयो। उसले केरा र दूध किन्यो। त्यसपछि घर फर्किएर उसले केरा आफ्नी छोरीलाई दियो।",
+      text: "Ravi সকালে বাজারে গিয়েছিলেন। তিনি কলা এবং দুধ কিনেছিলেন। তারপর তিনি বাড়ি ফিরে এসে তাঁর মেয়েকে কলাগুলো দিলেন।",
       questions: [
-        {
-          question: "रवि कहाँ गयो?",
-          options: ["अस्पताल", "बजार", "पार्क"],
-          correctIndex: 1
-        },
-        {
-          question: "उसले के किन्यो?",
-          options: ["केरा र दूध", "चामल र अण्डा", "रोटी र चिया"],
-          correctIndex: 0
-        },
-        {
-          question: "उसले केरा कसलाई दियो?",
-          options: ["आफ्नी छोरीलाई", "आफ्नो छोरालाई", "आफ्नो छिमेकीलाई"],
-          correctIndex: 0
-        }
+        { question: "Ravi কোথায় গিয়েছিলেন?", options: ["হাসপাতাল", "বাজার", "পার্ক"], correctIndex: 1 },
+        { question: "তিনি কী কিনেছিলেন?", options: ["কলা এবং দুধ", "চাল এবং ডিম", "পাউরুটি এবং চা"], correctIndex: 0 },
+        { question: "তিনি কলাগুলো কাকে দিয়েছিলেন?", options: ["তার মেয়েকে", "তার ছেলেকে", "তার প্রতিবেশীকে"], correctIndex: 0 }
       ]
     },
     {
       id: "l1_s2",
-      text: "तेन्जिन बिहान कोहिमाको बजारमा गयो। उसले ताजा अनन्नास र चियापत्तीको प्याकेट किन्यो। घर फर्किने बाटोमा उसले आफ्नो छिमेकीलाई भेटेर अभिवादन गर्‍यो। साँझमा उसले परिवारसँग अनन्नास बाँडेर खायो।",
+      text: "Tenzin সকালে Kohima-র বাজারে গিয়েছিলেন। তিনি তাজা আনারস এবং এক প্যাকেট চা পাতা কিনেছিলেন। বাড়ি ফেরার পথে তিনি প্রতিবেশীকে শুভেচ্ছা জানাতে দাঁড়ালেন। সন্ধ্যায় তিনি তাঁর পরিবারের সঙ্গে আনারস ভাগ করে খেলেন।",
       questions: [
-        {
-          question: "तेन्जिन कहाँ गयो?",
-          options: ["अस्पताल", "बजार", "विद्यालय"],
-          correctIndex: 1
-        },
-        {
-          question: "उसले के किन्यो?",
-          options: ["अनन्नास र चियापत्ती", "चामल र माछा", "रोटी र दूध"],
-          correctIndex: 0
-        },
-        {
-          question: "उसले अनन्नास कसलाई बाँड्यो?",
-          options: ["परिवारलाई", "छिमेकीलाई", "साथीलाई"],
-          correctIndex: 0
-        }
+        { question: "Tenzin কোথায় গিয়েছিলেন?", options: ["হাসপাতাল", "বাজার", "স্কুল"], correctIndex: 1 },
+        { question: "তিনি কী কিনেছিলেন?", options: ["আনারস এবং চা পাতা", "চাল এবং মাছ", "পাউরুটি এবং দুধ"], correctIndex: 0 },
+        { question: "তিনি আনারস কার সঙ্গে ভাগ করে খেলেন?", options: ["তাঁর পরিবারের সঙ্গে", "তাঁর প্রতিবেশীর সঙ্গে", "তাঁর বন্ধুর সঙ্গে"], correctIndex: 0 }
       ]
     },
     {
       id: "l1_s3",
-      text: "इमाले आज दिउँसो खारको लागि खाना पकाइन्। उनले भाँडोमा बाँसको कोपिला र कच्चा पपीता हालिन्। उनको नाति विद्यालयबाट घर आउँदा ढोकाबाटै खानाको गन्ध थाहा पायो। आफ्नो मनपर्ने खाना देखेर उ धेरै खुसी भयो।",
+      text: "Ima আজ দুপুরের খাবারের জন্য Khar রান্না করেছিলেন। তিনি পাত্রে বাঁশের কোঁড় এবং কাঁচা পেঁপে যোগ করেছিলেন। তাঁর নাতি স্কুল থেকে বাড়ি ফিরে দরজা থেকেই খাবারের গন্ধ পেল। তাঁর প্রিয় খাবার দেখে সে খুব খুশি হলো।",
       questions: [
-        {
-          question: "इमाले के पकाइन्?",
-          options: ["खार", "थुकपा", "मोमो"],
-          correctIndex: 0
-        },
-        {
-          question: "विद्यालयबाट घर को आयो?",
-          options: ["उनको नाति", "उनको छोरा", "उनको छिमेकी"],
-          correctIndex: 0
-        },
-        {
-          question: "उ कस्तो महसुस गर्‍यो?",
-          options: ["खुसी", "रिसाहा", "थाकेको"],
-          correctIndex: 0
-        }
+        { question: "Ima কী রান্না করেছিলেন?", options: ["Khar", "Thukpa", "Momos"], correctIndex: 0 },
+        { question: "স্কুল থেকে কে বাড়ি ফিরল?", options: ["তার নাতি", "তার ছেলে", "তার প্রতিবেশী"], correctIndex: 0 },
+        { question: "তার কেমন অনুভূতি হলো?", options: ["খুশি", "রাগান্বিত", "ক্লান্ত"], correctIndex: 0 }
       ]
     },
     {
       id: "l1_s4",
-      text: "बिनोद र उनकी श्रीमती साप्ताहिक बजार हेर्न दिमापुर गए। उनीहरूले एक टोकरी सुन्तला र केही ताजा माछा किने। फर्किने बाटोमा वर्षा सुरु भयो, त्यसैले उनीहरू एउटा चियाको पसलमुनि पर्खिए।",
+      text: "Binod এবং তাঁর স্ত্রী সাপ্তাহিক বাজার দেখার জন্য Dimapur-এ গিয়েছিলেন। তারা এক ঝুড়ি কমলালেবু এবং কিছু তাজা মাছ কিনেছিলেন। ফেরার পথে বৃষ্টি শুরু হওয়ায় তারা একটি চায়ের দোকানের নিচে অপেক্ষা করলেন।",
       questions: [
-        {
-          question: "उनीहरू कुन सहरको बजार हेर्न गए?",
-          options: ["दिमापुर", "गुवाहाटी", "शिलंग"],
-          correctIndex: 0
-        },
-        {
-          question: "उनीहरूले के के किने?",
-          options: ["सुन्तला र माछा", "चामल र तरकारी", "दूध र अण्डा"],
-          correctIndex: 0
-        },
-        {
-          question: "उनीहरू चियाको पसलमुनि किन रोकिए?",
-          options: ["वर्षा सुरु भएकोले", "भोकाएकोले", "साथी भेटेकोले"],
-          correctIndex: 0
-        }
+        { question: "তারা কোন শহরের বাজারে গিয়েছিলেন?", options: ["Dimapur", "Guwahati", "Shillong"], correctIndex: 0 },
+        { question: "তারা কোন দুটি জিনিস কিনেছিলেন?", options: ["কমলালেবু এবং মাছ", "চাল এবং সবজি", "দুধ এবং ডিম"], correctIndex: 0 },
+        { question: "তারা চায়ের দোকানে কেন থামলেন?", options: ["বৃষ্টি শুরু হয়েছিল", "তারা ক্ষুধার্ত ছিল", "তারা এক বন্ধুর সঙ্গে দেখা করেছিল"], correctIndex: 0 }
       ]
-    },
-    // Remaining Level 1 stories use English text (no Nepali audio beyond l1_s4).
-    ...englishStoryContent[1].slice(4),
-  ],
-  // Level 2 and 3 fall back to English until Nepali translations are added.
-  2: englishStoryContent[2],
-  3: englishStoryContent[3],
+    }
+  ]
 };
 
 // ─── Export ───────────────────────────────────────────────────────────────────
@@ -1715,8 +1659,8 @@ const nepaliStoryContent = {
 const storyContent = {
   en: englishStoryContent,
   hi: buildHindiStoryContent(englishStoryContent),
+  bn: bengaliStoryContent,
   as: buildAssameseStoryContent(englishStoryContent),
-  ne: nepaliStoryContent,
 };
 
 export default storyContent;

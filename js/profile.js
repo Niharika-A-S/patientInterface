@@ -45,8 +45,8 @@ const INDIAN_STATES = [
 const LANGUAGE_KEYS = {
   en: "english",
   hi: "hindi",
+  bn: "bengali",
   as: "assamese",
-  ne: "nepali",
 };
 
 function phoneDigits(raw) {
@@ -241,8 +241,7 @@ export async function mountProfile(root, { onComplete, allowSkipBack = false, on
   async function submit() {
     if (!validate()) {
       render();
-      // errors values are now { message, key } objects — speak via key so
-      // Nepali routes to the correct interface MP3 rather than no-opping.
+      // errors values are now { message, key } objects — speak via key.
       const firstError = Object.values(state.errors)[0];
       if (firstError) speakKey(uiLang(), firstError.key, firstError.message);
       return;

@@ -3,14 +3,14 @@ import { normalizeLanguage } from "./db.js";
 const LANG_MAP = {
   en: "en-IN",
   hi: "hi-IN",
+  bn: "bn-IN",
   as: "as-IN",
-  // ne uses MP3 files; ne-NP is here as a reference only (never used for TTS)
-  ne: "ne-NP",
 };
 
 const LANG_PREFIX = {
   en: "en",
   hi: "hi",
+  bn: "bn",
   as: "as",
 };
 
@@ -70,13 +70,12 @@ function pickVoice() {
       || null
     );
   }
-  // For Hindi / Assamese: exact match → prefix match only.
-  // Do NOT fall back to English — that would speak the wrong language.
-  if (!wanted || !prefix) return null;
+  // For Hindi / Assamese: exact match → prefix match → any fallback voice.
+  // We log a warning in startUtterance if we had to fall back.
   return (
     voices.find((v) => v.lang === wanted)
     || voices.find((v) => (v.lang || "").toLowerCase().startsWith(prefix))
-    || null
+    || voices[0] || null
   );
 }
 
@@ -91,11 +90,12 @@ function startUtterance(text, generation) {
   }
 
   const voice = pickVoice();
-  // If no matching voice found for the selected language, fail gracefully.
-  // Do NOT speak with an English voice when Hindi or Assamese is selected.
-  if (!voice && currentLang !== "en") {
-    console.warn("[voice] No", currentLang, "voice available on this device — skipping TTS.");
-    return;
+  if (voice && currentLang !== "en") {
+    const isExact = voice.lang === LANG_MAP[currentLang];
+    const isPrefix = (voice.lang || "").toLowerCase().startsWith(LANG_PREFIX[currentLang] || "");
+    if (!isExact && !isPrefix) {
+      console.warn(`[voice] No ${LANG_MAP[currentLang]} voice found. Falling back to default voice: ${voice.name}`);
+    }
   }
 
   const utterance = new SpeechSynthesisUtterance(text);
@@ -122,169 +122,237 @@ function startUtterance(text, generation) {
 let lastAudioSrc = null;
 let lastAudioStartTime = 0;
 
-// ─── Nepali interface audio map ───────────────────────────────────────────────
-// Keys are ordered to match the sequence of phrases in the `ne` block of
-// i18n.js.  Each MP3 file covers a sequential group of those phrases.
-// The startTime fields represent phrase offsets within each file and must be
-// confirmed by listening to the supplied MP3s; they are set to 0 here as
-// placeholders until the exact timing is measured.
-//
-// File 1 phrase order (from i18n.js ne block):
-//   appTitle, appTag, profileTitle, profileSubtitle, profileName, profilePhone,
-//   profilePhoneHint, profileState, profileLanguage, profileContinue, profileEdit,
-//   selectState, welcomeName, errNameRequired, errNameShort, errPhoneRequired,
-//   errPhoneInvalid, errStateRequired, errLanguageRequired, repeat, back,
-//   playAgain, home
-// File 2 phrase order:
-//   wellDone, level, accuracy, timeTaken, attempts, mistakes, nextSession,
-//   easy, medium, hard, patternName, patternBlurb, shapeName, shapeBlurb,
-//   faceName, faceBlurb, storyName, storyBlurb, patternHelp, faceHelp,
-//   storyHelp, storyContinue, done, tryAgain, nice, allFound
-// File 3 phrase order:
-//   familyPhotos, familyHelp, personName, personPhoto, personRelation,
-//   addPerson, startGame, noPhoto, facePromptWho, facePromptWhoRelated,
-//   facePromptRelated, facePromptWhich, rel_mother…rel_friend
-const NE_INTERFACE_AUDIO = {
-  // ── File 1: app intro, profile, navigation ─────────────────────────────────
-  appTitle:             { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  appTag:               { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  profileTitle:         { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  profileSubtitle:      { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  profileName:          { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  profilePhone:         { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  profilePhoneHint:     { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  profileState:         { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  profileLanguage:      { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  profileContinue:      { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  profileEdit:          { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  selectState:          { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  welcomeName:          { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  errNameRequired:      { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  errNameShort:         { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  errPhoneRequired:     { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  errPhoneInvalid:      { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  errStateRequired:     { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  errLanguageRequired:  { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  repeat:               { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  back:                 { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  playAgain:            { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  home:                 { src: "./assets/interface_voice/1interfaceTranslation.mp3", startTime: 0 },
-  // ── File 2: results, game names, difficulty, instructions ──────────────────
-  wellDone:             { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  level:                { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  accuracy:             { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  timeTaken:            { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  attempts:             { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  mistakes:             { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  nextSession:          { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  easy:                 { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  medium:               { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  hard:                 { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  patternName:          { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  patternBlurb:         { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  shapeName:            { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  shapeBlurb:           { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  faceName:             { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  faceBlurb:            { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  storyName:            { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  storyBlurb:           { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  patternHelp:          { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  faceHelp:             { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  storyHelp:            { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  storyContinue:        { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  done:                 { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  tryAgain:             { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  nice:                 { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  allFound:             { src: "./assets/interface_voice/2interfaceTranslation.mp3", startTime: 0 },
-  // ── File 3: family, face prompts, relationships ─────────────────────────────
-  familyPhotos:         { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  familyHelp:           { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  personName:           { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  personPhoto:          { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  personRelation:       { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  addPerson:            { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  startGame:            { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  noPhoto:              { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  facePromptWho:        { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  facePromptWhoRelated: { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  facePromptRelated:    { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  facePromptWhich:      { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  rel_mother:           { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  rel_father:           { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  rel_daughter:         { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  rel_son:              { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  rel_sister:           { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  rel_brother:          { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  rel_spouse:           { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  rel_neighbor:         { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  rel_nurse:            { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  rel_doctor:           { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  rel_granddaughter:    { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  rel_grandson:         { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
-  rel_friend:           { src: "./assets/interface_voice/3interfaceTranslation.mp3", startTime: 0 },
+const BN_INTERFACE_AUDIO = {
+  appTitle:             { src: "./assets/interface_voice/appTitle.mp3" },
+  appTag:               { src: "./assets/interface_voice/appTag.mp3" },
+  profileTitle:         { src: "./assets/interface_voice/appTitle.mp3" },
+  profileSubtitle:      { src: "./assets/interface_voice/appTag.mp3" },
+  english:              { src: "./assets/interface_voice/english.mp3" },
+  hindi:                { src: "./assets/interface_voice/hindi.mp3" },
+  bengali:              { src: "./assets/interface_voice/bengali.mp3" },
+  assamese:             { src: "./assets/interface_voice/assamese.mp3" },
+  repeat:               { src: "./assets/interface_voice/repeat.mp3" },
+  back:                 { src: "./assets/interface_voice/back.mp3" },
+  playAgain:            { src: "./assets/interface_voice/repeat.mp3" },
+  home:                 { src: "./assets/interface_voice/home.mp3" },
+  logout:               { src: "./assets/interface_voice/logout.mp3" },
+  wellDone:             { src: "./assets/interface_voice/wellDone.mp3" },
+  patternName:          { src: "./assets/interface_voice/patternName.mp3" },
+  patternBlurb:         { src: "./assets/interface_voice/patternBlurb.mp3" },
+  shapeName:            { src: "./assets/interface_voice/shapeName.mp3" },
+  shapeBlurb:           { src: "./assets/interface_voice/shapeBlurb.mp3" },
+  faceName:             { src: "./assets/interface_voice/faceName.mp3" },
+  faceBlurb:            { src: "./assets/interface_voice/faceBlurb.mp3" },
+  storyName:            { src: "./assets/interface_voice/storyName.mp3" },
+  storyBlurb:           { src: "./assets/interface_voice/storyBlurb.mp3" },
+  patternHelp:          { src: "./assets/interface_voice/patternHelp.mp3" },
+  faceHelp:             { src: "./assets/interface_voice/faceHelp.mp3" },
+  storyHelp:            { src: "./assets/interface_voice/storyHelp.mp3" },
+  storyContinue:        { src: "./assets/interface_voice/storyContinue.mp3" },
+  done:                 { src: "./assets/interface_voice/storyContinue.mp3" },
+  tryAgain:             { src: "./assets/interface_voice/nice.mp3" },
+  nice:                 { src: "./assets/interface_voice/nice.mp3" },
+  allFound:             { src: "./assets/interface_voice/wellDone.mp3" },
+  familyPhotos:         { src: "./assets/interface_voice/familyPhotos.mp3" },
+  familyHelp:           { src: "./assets/interface_voice/familyHelp.mp3" },
+  personName:           { src: "./assets/interface_voice/personName.mp3" },
+  personPhoto:          { src: "./assets/interface_voice/personPhoto.mp3" },
+  personRelation:       { src: "./assets/interface_voice/personRelation.mp3" },
+  addPerson:            { src: "./assets/interface_voice/addPerson.mp3" },
+  startGame:            { src: "./assets/interface_voice/startGame.mp3" },
+  noPhoto:              { src: "./assets/interface_voice/noPhoto.mp3" },
+  facePromptWho:        { src: "./assets/interface_voice/personPromptWho.mp3" },
+  facePromptWhoRelated: { src: "./assets/interface_voice/personPromptWhoRelated.mp3" },
+  facePromptRelated:    { src: "./assets/interface_voice/facePromptRelated.mp3" },
+  facePromptWhich:      { src: "./assets/interface_voice/facePromptWhich.mp3" },
+  rel_mother:           { src: "./assets/interface_voice/rel_mother.mp3" },
+  rel_father:           { src: "./assets/interface_voice/rel_father.mp3" },
+  rel_daughter:         { src: "./assets/interface_voice/rel_daughter.mp3" },
+  rel_son:              { src: "./assets/interface_voice/rel_son.mp3" },
+  rel_sister:           { src: "./assets/interface_voice/rel_sister.mp3" },
+  rel_brother:          { src: "./assets/interface_voice/rel_brother.mp3" },
+  rel_spouse:           { src: "./assets/interface_voice/rel_spouse.mp3" },
+  rel_neighbor:         { src: "./assets/interface_voice/rel_neighbor.mp3" },
+  rel_nurse:            { src: "./assets/interface_voice/rel_nurse.mp3" },
+  rel_doctor:           { src: "./assets/interface_voice/rel_doctor.mp3" },
+  rel_granddaughter:    { src: "./assets/interface_voice/rel_granddaughter.mp3" },
+  rel_grandson:         { src: "./assets/interface_voice/rel_grandson.mp3" },
+  rel_friend:           { src: "./assets/interface_voice/rel_friend.mp3" },
+  shapeInstCircle:     { src: "./assets/interface_voice/shapeInstCircle.mp3" },
+  shapeInstSquare:     { src: "./assets/interface_voice/shapeInstSquare.mp3" },
+  shapeInstTriangle:   { src: "./assets/interface_voice/shapeInstTriangle.mp3" },
+  shapeInstRectangle:  { src: "./assets/interface_voice/shapeInstRectangle.mp3" },
+  shapeInstStar:       { src: "./assets/interface_voice/shapeInstStar.mp3" },
+  shapeInstPentagon:   { src: "./assets/interface_voice/shapeInstPentagon.mp3" },
 };
 
-// ─── Nepali story audio map ───────────────────────────────────────────────────
-// Maps story IDs to their Nepali MP3 file, startTime (seconds), and
-// optional stopTime (seconds) — used to prevent l1_s1 from running into
-// the second story that begins at 29 s in story1,2.mp3.
-const NE_STORY_AUDIO = {
-  // story1,2.mp3 contains two stories.
-  // l1_s1 starts at 0 s and must stop at 29 s (before story 2 begins).
-  l1_s1: { src: "./assets/story_voice/story1,2.mp3", startTime: 0,  stopTime: 29 },
-  // l1_s2 starts at 29 s (the second story in the combined file).
-  l1_s2: { src: "./assets/story_voice/story1,2.mp3", startTime: 29, stopTime: null },
-  l1_s3: { src: "./assets/story_voice/story3.mp3",  startTime: 0,  stopTime: null },
-  l1_s4: { src: "./assets/story_voice/story4.mp3",  startTime: 0,  stopTime: null },
+/**
+ * BN_STORY_AUDIO — granular per-phase Bengali story audio map.
+ * Each story entry contains:
+ *   story  — the narration MP3 for the story text
+ *   questions[n] — question audio for question index n (0-based)
+ *   options[n]   — options audio for question index n (0-based, covers all 3 options at once)
+ *
+ * File naming: storyN/storyN.mp3, questionN.(q+1).mp3, optionN.(q+1).mp3
+ * where N = story number (1-based), q = 0-based question index.
+ */
+const BN_STORY_AUDIO = {
+  l1_s1: {
+    story:     "./assets/story_voice/story1/story1.mp3",
+    questions: [
+      "./assets/story_voice/story1/question1.1.mp3",
+      "./assets/story_voice/story1/question1.2.mp3",
+      "./assets/story_voice/story1/question1.3.mp3",
+    ],
+    options: [
+      "./assets/story_voice/story1/option1.1.mp3",
+      "./assets/story_voice/story1/option1.2.mp3",
+      "./assets/story_voice/story1/option1.3.mp3",
+    ],
+  },
+  l1_s2: {
+    story:     "./assets/story_voice/story2/story2.mp3",
+    questions: [
+      "./assets/story_voice/story2/question2.1.mp3",
+      "./assets/story_voice/story2/question2.2.mp3",
+      "./assets/story_voice/story2/question2.3.mp3",
+    ],
+    options: [
+      "./assets/story_voice/story2/option2.1.mp3",
+      "./assets/story_voice/story2/option2.2.mp3",
+      "./assets/story_voice/story2/option2.3.mp3",
+    ],
+  },
+  l1_s3: {
+    story:     "./assets/story_voice/story3/story3.mp3",
+    questions: [
+      "./assets/story_voice/story3/question3.1.mp3",
+      "./assets/story_voice/story3/question3.2.mp3",
+      "./assets/story_voice/story3/question3.3.mp3",
+    ],
+    options: [
+      "./assets/story_voice/story3/option3.1.mp3",
+      "./assets/story_voice/story3/option3.2.mp3",
+      "./assets/story_voice/story3/option3.3.mp3",
+    ],
+  },
+  l1_s4: {
+    story:     "./assets/story_voice/story4/story4.mp3",
+    questions: [
+      "./assets/story_voice/story4/question4.1.mp3",
+      "./assets/story_voice/story4/question4.2.mp3",
+      "./assets/story_voice/story4/question4.3.mp3",
+    ],
+    options: [
+      "./assets/story_voice/story4/option4.1.mp3",
+      "./assets/story_voice/story4/option4.2.mp3",
+      "./assets/story_voice/story4/option4.3.mp3",
+    ],
+  },
 };
 
 /**
  * speakKey — speak an interface string by its i18n key.
- * For Nepali this uses the NE_INTERFACE_AUDIO map; for other languages
- * it falls back to speak(translatedText) using Web Speech API.
+ * For Bengali this uses bundled interface audio maps when one is mapped; for
+ * dynamic keys without a mapped MP3 it falls back to speak(text) via bn-IN TTS.
+ * For other languages it always falls back to speak(translatedText) via Web Speech API.
  *
  * @param {string} lang  - current language code
  * @param {string} key   - i18n key
- * @param {string} text  - already-translated text (used for non-Nepali)
+ * @param {string} text  - already-translated text (displayed and spoken)
  */
-export function speakKey(lang, key, text) {
-  if (lang === "ne") {
-    const entry = NE_INTERFACE_AUDIO[key];
+export function speakKey(lang, key, text, mute = false) {
+  if (lang === "bn") {
+    const entry = BN_INTERFACE_AUDIO[key];
     if (entry) {
-      speak(null, entry.src, entry.startTime);
-    } else {
-      console.warn("[voice] No Nepali interface audio mapped for key:", key);
+      // Pass text alongside src so lastSpokenText is set to the Bengali phrase
+      // (used by the Repeat button), and the local MP3 plays for the audio.
+      speak(text, entry.src, entry.startTime || 0, null, mute);
+      return;
     }
-    return;
+    // No MP3 mapped for this key (e.g. shapeInstDynamic with a dynamic item
+    // name) — fall through to speak(text) which uses bn-IN TTS synthesis.
   }
-  speak(text);
+  speak(text, null, 0, null, mute);
 }
 
 /**
- * speakStory — play Nepali story narration by story ID.
- * For Nepali, looks up the story's MP3 and startTime in NE_STORY_AUDIO and
- * routes to speak(); for other languages, speaks the raw story text with the
- * Web Speech API as before.
+ * speakStory — play story narration audio (the story text phase).
+ * For Bengali, plays the story's dedicated offline MP3.
+ * For other languages, speaks the translated text via Web Speech API.
  *
  * @param {string} lang    - current language code
  * @param {string} storyId - story id (e.g. "l1_s1") from storyContent.js
- * @param {string} text    - already-translated story text (used for non-Nepali)
+ * @param {string} text    - translated story text (used for non-Bengali TTS)
  */
-export function speakStory(lang, storyId, text) {
-  if (lang === "ne") {
-    const entry = NE_STORY_AUDIO[storyId];
+export function speakStory(lang, storyId, text, mute = false) {
+  if (lang === "bn") {
+    const entry = BN_STORY_AUDIO[storyId];
     if (entry) {
-      speak(null, entry.src, entry.startTime, entry.stopTime ?? null);
+      speak(text, entry.story, 0, null, mute);
     } else {
-      // Unmapped Nepali story — silently skip rather than fall through to TTS
-      console.warn("[voice] No Nepali story audio mapped for id:", storyId);
+      console.warn("[voice] No Bengali story audio mapped for id:", storyId);
+      speak(text, null, 0, null, mute);
     }
     return;
   }
-  speak(text);
+  speak(text, null, 0, null, mute);
 }
 
-export function speak(text, audioSrc = null, startTime = 0, stopTime = null) {
+/**
+ * speakStoryQuestion — play the question audio for the given question index,
+ * then automatically chain the options audio once the question finishes.
+ * For Bengali: plays questionN.x.mp3, then on 'ended' plays optionN.x.mp3.
+ * For other languages: speaks the question text via Web Speech API (no options chaining).
+ *
+ * @param {string} lang          - current language code
+ * @param {string} storyId       - story id (e.g. "l1_s1")
+ * @param {number} questionIndex - 0-based question index
+ * @param {string} questionText  - translated question text (used for non-Bengali TTS)
+ */
+export function speakStoryQuestion(lang, storyId, questionIndex, questionText, mute = false) {
+  if (mute) return;
+  if (lang === "bn") {
+    const entry = BN_STORY_AUDIO[storyId];
+    if (!entry) {
+      console.warn("[voice] No Bengali story audio mapped for id:", storyId);
+      speak(questionText, null, 0, null, false);
+      return;
+    }
+    const questionSrc = entry.questions[questionIndex];
+    const optionsSrc  = entry.options[questionIndex];
+    if (!questionSrc) {
+      console.warn("[voice] No Bengali question audio for:", storyId, "q", questionIndex);
+      speak(questionText, null, 0, null, false);
+      return;
+    }
+    // Stop anything currently playing
+    stopSpeak();
+    const generation = ++speakGeneration;
+    // Play question audio
+    const qAudio = new Audio(questionSrc);
+    currentAudio = qAudio;
+    lastSpokenText = questionText;
+    lastAudioSrc = questionSrc;
+    lastAudioStartTime = 0;
+    qAudio.play().catch(e => console.warn("[voice] Question audio failed:", e));
+    // On question end, chain the options audio
+    if (optionsSrc) {
+      qAudio.addEventListener("ended", () => {
+        if (speakGeneration !== generation) return; // superseded
+        const oAudio = new Audio(optionsSrc);
+        currentAudio = oAudio;
+        lastAudioSrc = optionsSrc;
+        oAudio.play().catch(e => console.warn("[voice] Options audio failed:", e));
+      }, { once: true });
+    }
+    return;
+  }
+  // Non-Bengali: speak question text via Web Speech API
+  speak(questionText, null, 0, null, false);
+}
+
+export function speak(text, audioSrc = null, startTime = 0, stopTime = null, mute = false) {
   if (text == null && !audioSrc) return;
   const next = text != null ? String(text).trim() : "";
   if (!next && !audioSrc) return;
@@ -293,16 +361,16 @@ export function speak(text, audioSrc = null, startTime = 0, stopTime = null) {
   lastAudioSrc = audioSrc;
   lastAudioStartTime = startTime;
 
+  if (mute) return;
+
   stopSpeak();
   const generation = ++speakGeneration;
 
-  if (currentLang === "ne") {
+  if (currentLang === "bn") {
     if (audioSrc) {
       const audio = new Audio(audioSrc);
       currentAudio = audio;
       if (startTime > 0) {
-        // Seek to startTime once the browser has buffered enough.
-        // story1,2.mp3: l1_s2 narration begins at 29 seconds.
         audio.addEventListener("canplaythrough", () => {
           if (currentAudio !== audio) return; // superseded by a newer request
           audio.currentTime = startTime;
@@ -312,8 +380,6 @@ export function speak(text, audioSrc = null, startTime = 0, stopTime = null) {
       } else {
         audio.play().catch(e => console.warn("[voice] Audio play failed:", e));
       }
-      // If a stopTime is set, pause the audio at that timestamp.
-      // This prevents l1_s1 from bleeding into the second story in story1,2.mp3.
       if (stopTime != null) {
         audio.addEventListener("timeupdate", () => {
           if (currentAudio !== audio) return;
@@ -323,10 +389,8 @@ export function speak(text, audioSrc = null, startTime = 0, stopTime = null) {
           }
         });
       }
-    } else {
-      console.warn("[voice] Nepali audio requested but no MP3 mapped.", text ? `Text: ${text}` : "");
+      return;
     }
-    return; // Never fall through to SpeechSynthesis for Nepali
   }
 
   if (!("speechSynthesis" in window)) return;

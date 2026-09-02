@@ -1,31 +1,22 @@
 const SHAPES = ["circle", "square", "triangle", "rectangle", "star", "pentagon"];
 
 const EMOJIS = [
-  { value: "🍎", en: "apples", hi: "सेब", as: "মোহবাৰী" },
-  { value: "🍌", en: "bananas", hi: "केले", as: "কল" },
-  { value: "🌸", en: "flowers", hi: "फूल", as: "ফুল" },
-  { value: "☂️", en: "umbrellas", hi: "छतरियाँ", as: "চাতি" },
-  { value: "⚽", en: "balls", hi: "गेंदें", as: "বল" },
-  { value: "🔑", en: "keys", hi: "चाबियाँ", as: "চাবি" },
-  { value: "☕", en: "cups", hi: "कप", as: "কাপ" },
-  { value: "🌙", en: "moons", hi: "चाँद", as: "চান" },
+  { value: "🍎", en: "apples", hi: "सेब", bn: "আপেল", as: "মোহবাৰী" },
+  { value: "🍌", en: "bananas", hi: "केले", bn: "কলা", as: "কল" },
+  { value: "🌸", en: "flowers", hi: "फूल", bn: "ফুল", as: "ফুল" },
+  { value: "☂️", en: "umbrellas", hi: "छतरियाँ", bn: "ছাতা", as: "চাতি" },
+  { value: "⚽", en: "balls", hi: "गेंदें", bn: "বল", as: "বল" },
+  { value: "🔑", en: "keys", hi: "चाबियाँ", bn: "চাবি", as: "চাবি" },
+  { value: "☕", en: "cups", hi: "कप", bn: "কাপ", as: "কাপ" },
+  { value: "🌙", en: "moons", hi: "चाँद", bn: "চাঁদ", as: "চান" },
 ];
 
 export const OBJECT_ITEMS = [
-  { id: "clock", image: "assets/objects/clock.jpg", en: "clocks", hi: "घड़ियाँ", as: "ঘড়ি" },
-  { id: "telephone", image: "assets/objects/telephone.jpg", en: "telephones", hi: "टेलीफ़ोन", as: "টেলিফোন" },
-  { id: "chair", image: "assets/objects/chair.jpg", en: "chairs", hi: "कुर्सियाँ", as: "মেজোপালি" },
-  { id: "book", image: "assets/objects/book.jpg", en: "books", hi: "किताबें", as: "পুস্তক" },
+  { id: "clock", image: "assets/objects/clock.jpg", en: "clocks", hi: "घड़ियाँ", bn: "ঘড়ি", as: "ঘড়ি" },
+  { id: "telephone", image: "assets/objects/telephone.jpg", en: "telephones", hi: "टेलीफ़ोन", bn: "টেলিফোন", as: "টেলিফোন" },
+  { id: "chair", image: "assets/objects/chair.jpg", en: "chairs", hi: "कुर्सियाँ", bn: "চেয়ার", as: "মেজোপালি" },
+  { id: "book", image: "assets/objects/book.jpg", en: "books", hi: "किताबें", bn: "বই", as: "পুস্তক" },
 ];
-
-const SHAPE_INSTRUCTIONS = {
-  circle:    { en: "Tap all the circles",    hi: "सभी गोल आकार छुएँ",  as: "সকলো বৃত্ত চাপক" },
-  square:    { en: "Tap all the squares",    hi: "सभी वर्ग छुएँ",         as: "সকলো বৰ্গাকাৰ চাপক" },
-  triangle:  { en: "Tap all the triangles",  hi: "सभी त्रिभुज छुएँ",    as: "সকলো ত্ৰিভুজ চাপক" },
-  rectangle: { en: "Tap all the rectangles", hi: "सभी आयत छुएँ",       as: "সকলো আয়ত চাপক" },
-  star:      { en: "Tap all the stars",      hi: "सभी तारे छुएँ",         as: "সকলো তাৰা চাপক" },
-  pentagon:  { en: "Tap all the pentagons",  hi: "सभी पंचभुज छुएँ",    as: "সকলো পঞ্চভুজ চাপক" },
-};
 
 const LEVEL_ROUNDS = {
   1: [
@@ -60,16 +51,20 @@ export function matchesRule(item, rule) {
   return false;
 }
 
-export function buildShapeSortRound(level) {
+import { tf } from "../i18n.js";
+
+export function buildShapeSortRound(lang, level) {
   const n = Number(level) || 1;
   const rounds = LEVEL_ROUNDS[n] || LEVEL_ROUNDS[1];
   const index = roundCursor[n] || 0;
   roundCursor[n] = (index + 1) % rounds.length;
   const dim = rounds[index];
+  const { key: instructionKey, text: instructionText } = instructionFor(lang, dim.target);
   const rule = {
     kind: dim.target.kind,
     value: dim.target.value,
-    instruction: instructionFor(dim.target),
+    instructionKey,
+    instructionText,
   };
 
   const raw = [];
@@ -88,7 +83,8 @@ export function buildShapeSortRound(level) {
       level: n,
       rule,
       timeLimitMs: null,
-      instruction: rule.instruction,
+      instructionKey: rule.instructionKey,
+      instructionText: rule.instructionText,
       targetCount: targetIds.length,
     },
     items,
@@ -96,22 +92,19 @@ export function buildShapeSortRound(level) {
   };
 }
 
-function instructionFor(target) {
-  if (target.kind === "shape") return SHAPE_INSTRUCTIONS[target.value];
+function instructionFor(lang, target) {
+  if (target.kind === "shape") {
+    const key = `shapeInst${target.value.charAt(0).toUpperCase() + target.value.slice(1)}`;
+    return { key, text: tf(lang, key) };
+  }
   if (target.kind === "emoji") {
     const row = EMOJIS.find((e) => e.value === target.value);
-    return {
-      en: `Tap all the ${row ? row.en : "matching items"}`,
-      hi: `सभी ${row ? row.hi : "मेल खाती चीज़ें"} छुएँ`,
-      as: `সকলো ${row ? row.as : "মিলা বস্তু"} চাপক`,
-    };
+    const itemText = row ? row[lang] || row.en : "matching items";
+    return { key: "shapeInstDynamic", text: tf(lang, "shapeInstDynamic", { item: itemText }) };
   }
   const obj = OBJECT_ITEMS.find((o) => o.id === target.value);
-  return {
-    en: `Tap all the ${obj ? obj.en : "matching items"}`,
-    hi: `सभी ${obj ? obj.hi : "मेल खाती चीज़ें"} छुएँ`,
-    as: `সকলো ${obj ? obj.as : "মিলা বস্তু"} চাপক`,
-  };
+  const itemText = obj ? obj[lang] || obj.en : "matching items";
+  return { key: "shapeInstDynamic", text: tf(lang, "shapeInstDynamic", { item: itemText }) };
 }
 
 function makeTargetItem(rule) {
