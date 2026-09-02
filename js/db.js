@@ -2,6 +2,13 @@ import { clampLevel, describeAdaptive } from "./adaptive.js";
 
 const DEFAULT_PATIENT_ID = 1;
 
+export const SUPPORTED_LANGUAGES = ["en", "hi", "as", "bn"];
+
+export function normalizeLanguage(lang) {
+  const code = String(lang || "en").toLowerCase();
+  return SUPPORTED_LANGUAGES.includes(code) ? code : "en";
+}
+
 export const GAME_TYPES = {
   pattern_matching: "pattern_matching",
   shape_sort: "shape_sort",
@@ -115,14 +122,36 @@ export async function deleteFamilyMember(id) {
   return db.familyMembers.delete(id);
 }
 
+export async function getPatient() {
+  return db.patients.get(DEFAULT_PATIENT_ID);
+}
+
+export async function isProfileComplete() {
+  const patient = await getPatient();
+  if (!patient) return false;
+  const name = String(patient.name || "").trim();
+  const phone = String(patient.phone || "").trim();
+  const state = String(patient.state || "").trim();
+  return Boolean(name && phone && state && normalizeLanguage(patient.language));
+}
+
+export async function savePatientProfile({ name, phone, state, language }) {
+  await db.patients.update(DEFAULT_PATIENT_ID, {
+    name: String(name || "").trim(),
+    phone: String(phone || "").trim(),
+    state: String(state || "").trim(),
+    language: normalizeLanguage(language),
+  });
+}
+
 export async function getLanguage() {
-  const patient = await db.patients.get(DEFAULT_PATIENT_ID);
-  return patient?.language === "hi" ? "hi" : "en";
+  const patient = await getPatient();
+  return normalizeLanguage(patient?.language);
 }
 
 export async function setLanguage(language) {
   await db.patients.update(DEFAULT_PATIENT_ID, {
-    language: language === "hi" ? "hi" : "en",
+    language: normalizeLanguage(language),
   });
 }
 

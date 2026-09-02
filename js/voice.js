@@ -1,6 +1,17 @@
+import { normalizeLanguage } from "./db.js";
+
 const LANG_MAP = {
   en: "en-IN",
   hi: "hi-IN",
+  as: "as-IN",
+  bn: "bn-IN",
+};
+
+const LANG_PREFIX = {
+  en: "en",
+  hi: "hi",
+  as: "as",
+  bn: "bn",
 };
 
 let currentLang = "en";
@@ -11,7 +22,7 @@ let speakTimer = 0;
 let resumeWatch = 0;
 
 export function setVoiceLang(lang) {
-  currentLang = lang === "hi" ? "hi" : "en";
+  currentLang = normalizeLanguage(lang);
 }
 
 export function getVoiceLang() {
@@ -34,11 +45,12 @@ function ensureResumeWatch() {
 function pickVoice() {
   const voices = window.speechSynthesis.getVoices() || [];
   if (!voices.length) return null;
-  const wanted = LANG_MAP[currentLang];
-  const prefix = currentLang === "hi" ? "hi" : "en";
+  const wanted = LANG_MAP[currentLang] || LANG_MAP.en;
+  const prefix = LANG_PREFIX[currentLang] || "en";
   return (
     voices.find((v) => v.lang === wanted)
     || voices.find((v) => (v.lang || "").toLowerCase().startsWith(prefix))
+    || voices.find((v) => (v.lang || "").toLowerCase().startsWith("en"))
     || null
   );
 }
@@ -54,7 +66,7 @@ function startUtterance(text, generation) {
   }
 
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = LANG_MAP[currentLang];
+  utterance.lang = LANG_MAP[currentLang] || LANG_MAP.en;
   utterance.rate = 0.9;
   const voice = pickVoice();
   if (voice) utterance.voice = voice;
