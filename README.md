@@ -76,3 +76,25 @@ New `game_results` rows always start with `sync_status: "PENDING"`. Nothing in t
 - Face authentication
 - Reminder system
 - Switching storage away from Dexie/IndexedDB
+
+
+BENGALI LANGUAGE SUPPORT :
+
+- Added **Bengali language support** to the existing multilingual interface.
+- Added Bengali translations for the application's user-facing text, including:
+  - Profile and language selection
+  - Game names and instructions
+  - Buttons and messages
+  - Family photo section
+  - Face & Name activity
+  - Shape Sort instructions
+  - Story activity
+  - Relationship names
+- Integrated Bengali into the existing language-selection and localization system without changing the existing functionality of other supported languages.
+- Added Bengali support for **Shape Sort instructions**, including localized shape names and dynamically generated instructions.
+- Added Bengali translations for the **top four stories**, including their questions and answer options.
+- Prepared separate **Bengali voice recordings** for the stories, questions, and answer options using local audio files.
+- Integrated the Bengali story audio so that the appropriate recording is played according to the story, question, and options currently displayed.
+- Maintained the existing **offline functionality** by using bundled/local audio rather than requiring a live voice or cloud API during application use.
+- Removed **Nepali language support** from the interface and project configuration while preserving English, Hindi, Bengali, and Assamese functionality.
+- Verified and maintained consistency across the language configuration so that the supported languages continue to work correctly.
