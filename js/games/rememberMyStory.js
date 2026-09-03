@@ -1,6 +1,6 @@
 import { el, clear, header, summaryView, levelSubtitle } from "../ui.js";
 import { t, tf } from "../i18n.js";
-import { speak, setVoiceLang } from "../voice.js";
+import { speak, speakKey, speakStory, speakStoryQuestion, setVoiceLang, stopSpeak } from "../voice.js";
 import { applyAdaptiveAndSave, GAME_TYPES } from "../db.js";
 import { clampLevel } from "../adaptive.js";
 import storyContent from "../content/storyContent.js";
@@ -16,7 +16,9 @@ function shuffle(arr) {
 
 function pickStory(level, lang = "en") {
   const poolSet = storyContent[lang] || storyContent.en;
-  const pool = poolSet[level] || poolSet[1] || storyContent.en[1];
+  const pool = (poolSet[level] && poolSet[level].length > 0)
+    ? poolSet[level]
+    : poolSet[1];
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
@@ -43,12 +45,20 @@ export function mountRememberMyStory(root, { lang, level, onHome }) {
   let resumeLevel = activeLevel;
   let finishing = false;
 
+  function handleBack() {
+    stopSpeak();
+    onHome();
+  }
+
   function restart() {
+    stopSpeak();
     mountRememberMyStory(root, { lang, level: resumeLevel, onHome });
   }
 
   setVoiceLang(lang);
-  speak(story.text);
+  // For Bengali, speakStory routes to the correct pre-recorded MP3 by story id.
+  // For other languages, it falls back to speak(text) via Web Speech API.
+  speakStory(lang, story.id, story.text);
   render();
 
   function render(complete = false, summary = null) {
@@ -60,7 +70,7 @@ export function mountRememberMyStory(root, { lang, level, onHome }) {
       header(lang, {
         title: t(lang, "storyName"),
         subtitle,
-        onBack: onHome,
+        onBack: handleBack,
       }),
     );
     if (complete) {
@@ -109,8 +119,11 @@ export function mountRememberMyStory(root, { lang, level, onHome }) {
     questionIndex = 0;
     questionStart = Date.now();
     setVoiceLang(lang);
-    speak(questions[0].question);
+    stopSpeak();
     render();
+    // For Bengali: plays question audio, then chains options audio on 'ended'.
+    // For other languages: speaks question text via Web Speech API.
+    speakStoryQuestion(lang, story.id, 0, questions[0].question);
   }
 
   function handleChoice(option) {
@@ -119,10 +132,10 @@ export function mountRememberMyStory(root, { lang, level, onHome }) {
     responseTimes.push(Date.now() - questionStart);
     setVoiceLang(lang);
     if (option.correct) {
-      speak(t(lang, "nice"));
+      speakKey(lang, "nice", t(lang, "nice"));
     } else {
       mistakes += 1;
-      speak(t(lang, "tryAgain"));
+      speakKey(lang, "tryAgain", t(lang, "tryAgain"));
     }
     questionIndex += 1;
     if (questionIndex >= questions.length) {
@@ -130,8 +143,11 @@ export function mountRememberMyStory(root, { lang, level, onHome }) {
       return;
     }
     questionStart = Date.now();
-    speak(questions[questionIndex].question);
     render();
+    // Stop previous audio, then play next question + chain options (Bengali)
+    // or speak question text (other languages).
+    stopSpeak();
+    speakStoryQuestion(lang, story.id, questionIndex, questions[questionIndex].question);
   }
 
   async function finish() {
@@ -157,7 +173,7 @@ export function mountRememberMyStory(root, { lang, level, onHome }) {
       },
     });
     resumeLevel = nextPlayLevel;
-    speak(t(lang, "wellDone"));
+    speakKey(lang, "wellDone", t(lang, "wellDone"));
     render(true, {
       level: activeLevel,
       accuracyPercent,

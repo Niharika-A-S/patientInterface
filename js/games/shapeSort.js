@@ -1,6 +1,6 @@
 import { el, clear, header, summaryView, levelSubtitle } from "../ui.js";
 import { t } from "../i18n.js";
-import { speak } from "../voice.js";
+import { speak, speakKey } from "../voice.js";
 import { applyAdaptiveAndSave, GAME_TYPES } from "../db.js";
 import { clampLevel } from "../adaptive.js";
 import { buildShapeSortRound, matchesRule } from "../content/shapeSortContent.js";
@@ -37,7 +37,7 @@ function tileContent(item) {
 
 export function mountShapeSort(root, { lang, level, onHome }) {
   const activeLevel = clampLevel(level);
-  const { spec, items, targetIds: targetIdList } = buildShapeSortRound(activeLevel);
+  const { spec, items, targetIds: targetIdList } = buildShapeSortRound(lang, activeLevel);
   const targetIds = new Set(targetIdList);
   const foundIds = new Set();
   let wrongTaps = 0;
@@ -55,8 +55,7 @@ export function mountShapeSort(root, { lang, level, onHome }) {
     mountShapeSort(root, { lang, level: resumeLevel, onHome });
   }
 
-  const instruction = spec.instruction[lang] || spec.instruction.en;
-  speak(instruction);
+  speakKey(lang, spec.instructionKey, spec.instructionText);
 
   if (spec.timeLimitMs) {
     timerId = setInterval(() => {
@@ -105,7 +104,7 @@ export function mountShapeSort(root, { lang, level, onHome }) {
     root.append(
       el("main", { className: "screen" },
         spec.timeLimitMs ? el("div", { className: "timer" }, `${Math.max(0, Math.ceil(remainingMs / 1000))}s`) : null,
-        el("p", { className: "instruction" }, instruction),
+        el("p", { className: "instruction" }, spec.instructionText),
         el("p", { className: "instruction" }, foundLabel(lang, foundIds.size, targetIds.size)),
         grid,
         el("button", {
@@ -126,7 +125,7 @@ export function mountShapeSort(root, { lang, level, onHome }) {
 
     if (targetIds.has(item.id)) {
       foundIds.add(item.id);
-      speak(t(lang, "nice"));
+      speakKey(lang, "nice", t(lang, "nice"));
       if (allTargetsFound()) finish();
       else render();
       return;
@@ -134,7 +133,7 @@ export function mountShapeSort(root, { lang, level, onHome }) {
 
     wrongTaps += 1;
     lastWrongId = item.id;
-    speak(t(lang, "tryAgain"));
+    speakKey(lang, "tryAgain", t(lang, "tryAgain"));
     render();
   }
 
@@ -169,7 +168,8 @@ export function mountShapeSort(root, { lang, level, onHome }) {
       },
     });
     resumeLevel = nextPlayLevel;
-    speak(allTargetsFound() ? t(lang, "allFound") : t(lang, "wellDone"));
+    speakKey(lang, allTargetsFound() ? "allFound" : "wellDone",
+             t(lang, allTargetsFound() ? "allFound" : "wellDone"));
     clear(root);
     root.append(
       header(lang, { title: t(lang, "shapeName"), subtitle: levelSubtitle(lang, activeLevel), onBack: onHome }),
@@ -186,5 +186,8 @@ export function mountShapeSort(root, { lang, level, onHome }) {
 }
 
 function foundLabel(lang, found, total) {
-  return lang === "hi" ? `${found} / ${total} मिल गए` : `Found ${found} of ${total}`;
+  if (lang === "bn") return `${found} / ${total} টি পাওয়া গেছে`;
+  if (lang === "hi") return `${found} / ${total} मिल गए`;
+  if (lang === "as") return `${found} / ${total} বিচাৰি পোৱা হ'ল`;
+  return `Found ${found} of ${total}`;
 }

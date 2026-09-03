@@ -1402,10 +1402,7 @@ const englishStoryContent = {
         { question: "What did Ibemhal cook?", options: ["Fish tenga", "Khar", "Pitha"], correctIndex: 0 },
         { question: "When did Sanajaoba buy the fish?", options: ["That morning", "The night before", "A week earlier"], correctIndex: 0 },
         { question: "Why did Ngangbi stop by?", options: ["To return a borrowed umbrella", "To borrow rice", "To visit"], correctIndex: 0 },
-        { question: "What did their grandmother say about the food?", options: ["It reminded her of meals she used to cook", "It was too spicy", "It needed more salt"], correctIndex: 0 }
-      ]
-    },
-    {
+      ],
       id: "l4_s6",
       text: "Kevi and his wife Sentila owned a small orchard near Kohima where they grew kiwi and passion fruit. Every harvest season, their daughter Neikho came home from the city to help with the picking. This year, a fruit trader named Vilato visited to negotiate a bulk purchase of kiwi for the city market. Kevi and Sentila agreed to sell him a large basket, though they kept some fruit aside for the family. Neikho spent the afternoon packing baskets while telling her parents stories about her life in the city. Before leaving, Vilato promised to return next season for another purchase.",
       questions: [
@@ -1468,9 +1465,202 @@ const englishStoryContent = {
   ]
 };
 
+// ─── Assamese translation helpers ────────────────────────────────────────────
+
+const AS_NAME_MAP = {
+  Ravi: "ৰবি", Tenzin: "টেনজিন", Ima: "ইমা", Binod: "বিনোদ",
+  Lily: "লিলি", Robin: "ৰবিন", Anup: "অনুপ", Deepa: "দীপা",
+  Momi: "মোমি", Ratan: "ৰতন", Suman: "সুমন", Ranjit: "ৰণজিৎ",
+  Sanju: "সঞ্জু", Ema: "এমা", Toshi: "তোশি", Mimi: "মিমি",
+  Karma: "কৰ্ম", Nita: "নিতা", Aiba: "আইবা", Wangba: "ৱাংবা",
+  Peter: "পিটাৰ", Lucy: "লুচি", Doni: "দোনি", Ashi: "আশি",
+  Kevi: "কেভি", Sentila: "চেন্তিলা", Neikho: "নেইখো", Vilato: "ভিলাটো",
+  Lalawmpuia: "লালৱমপুইয়া", Zoremi: "জোৰেমি", Malsawma: "মালচৱমা",
+  Rinsangi: "ৰিনচাঙি", Bidya: "বিদ্যা", Tapan: "তপন", Deben: "দেবেন",
+  Ruma: "ৰুমা", Priya: "প্ৰিয়া", Arjun: "অৰ্জুন", Nokchan: "নকচান",
+  Aben: "আবেন", Sanen: "চানেন", Vilie: "ভিলিয়ে", Meena: "মীনা",
+  Diki: "দিকি", Ibemhal: "ইবেমহাল", Sanajaoba: "চানাজাওবা",
+  Ngangbi: "ঙাংবি", Lalrin: "লালৰিন", Bikash: "বিকাশ",
+  Mona: "মোনা", Ibha: "ইভা", Lobsang: "লোবচাং",
+};
+
+const AS_WORD_MAP = {
+  Hospital: "চিকিৎসালয়", Market: "বজাৰ", Park: "উদ্যান",
+  School: "বিদ্যালয়", River: "নদী", Lake: "হ্ৰদ",
+  Field: "পথাৰ", Garden: "বাগিচা", Kitchen: "পাকঘৰ",
+  Veranda: "বাৰান্দা", Porch: "বাৰান্দা",
+  Guwahati: "গুৱাহাটী", Shillong: "শ্বিলং", Imphal: "ইম্ফাল",
+  Aizawl: "আইজল", Itanagar: "ইটানগৰ", Kohima: "কোহিমা",
+  Dimapur: "ডিমাপুৰ", Forest: "হাবি",
+  bananas: "কল", milk: "গাখীৰ", fish: "মাছ", crabs: "কুঁজি",
+  oranges: "কমলা", pineapple: "আনাৰস", kiwi: "কিৱি", litchi: "লিচু",
+  umbrella: "চাতি", blanket: "কম্বল", basket: "পাচি", bag: "মোনা",
+  rice: "ভাত", tea: "চাহ", vegetables: "পাচলি", fruit: "ফল",
+  khar: "খাৰ", thukpa: "থুকপা", momos: "মোমো", pitha: "পিঠা",
+  jadoh: "জাডো", "fish tenga": "মাছ তেঙা",
+  breakfast: "পুৱাৰ আহাৰ", lunch: "দুপৰীয়াৰ আহাৰ", dinner: "নিশাৰ আহাৰ",
+  morning: "পুৱা", evening: "সন্ধিয়া", afternoon: "দুপৰীয়া",
+  home: "ঘৰ", market: "বজাৰ", river: "নদী", garden: "বাগিচা",
+  family: "পৰিয়াল", friend: "বন্ধু", neighbor: "চুবুৰীয়া",
+  grandfather: "ককা", grandmother: "আই", father: "দেউতা", mother: "মা",
+  son: "পুতেক", daughter: "জীয়েক", husband: "স্বামী", wife: "পত্নী",
+  happy: "সুখী", tired: "ক্লান্ত", proud: "গৌৰৱান্বিত",
+  "bamboo shoot": "বাঁহৰ কোঁৱলীয়া", pickle: "আচাৰ",
+  Where: "ক'ত", What: "কি", Who: "কোন", Why: "কিয়", How: "কেনেকৈ",
+};
+
+function buildAssameseStoryContent(content) {
+  return Object.fromEntries(
+    Object.entries(content).map(([level, stories]) => [
+      level,
+      stories.map((story) => ({
+        ...story,
+        text: replaceAssameseWords(story.text),
+        questions: story.questions.map((item) => ({
+          ...item,
+          question: replaceAssameseWords(item.question),
+          options: item.options.map((opt) => replaceAssameseWords(opt)),
+        })),
+      })),
+    ]),
+  );
+}
+
+function replaceAssameseWords(text) {
+  let out = String(text);
+  const entries = Object.entries(AS_NAME_MAP).concat(Object.entries(AS_WORD_MAP));
+  entries.sort((a, b) => b[0].length - a[0].length);
+  for (const [en, as] of entries) {
+    if (!en) continue;
+    const pattern = new RegExp(`\\b${escapeRegExp(en)}\\b`, "gi");
+    out = out.replace(pattern, as);
+  }
+  return out;
+}
+
+
+
+// ─── Bengali translation helpers ─────────────────────────────────────────────
+
+const BN_NAME_MAP = {
+  Ravi: "রবি", Tenzin: "তেনজিন", Ima: "ইমা", Binod: "বিনোদ",
+  Lily: "লিলি", Robin: "রবিন", Anup: "অনুপ", Deepa: "দীপা",
+  Momi: "মোমি", Ratan: "রতন", Suman: "সুমন", Ranjit: "রণজিৎ",
+  Sanju: "সঞ্জু", Ema: "এমা", Toshi: "তোশি", Mimi: "মিমি",
+  Karma: "কর্মা", Nita: "নীতা", Aiba: "আইবা", Wangba: "ওয়াংবা",
+  Peter: "পিটার", Lucy: "লুসি", Doni: "দোনি", Ashi: "আশি",
+  Kevi: "কেভি", Sentila: "সেন্তিলা", Neikho: "নেইখো", Vilato: "ভিলাটো",
+  Lalawmpuia: "লালাওয়ামপুইয়া", Zoremi: "জোরেমি", Malsawma: "মালসাওমা",
+  Rinsangi: "রিনসাঙ্গি", Bidya: "বিদ্যা", Tapan: "তপন", Deben: "দেবেন",
+  Ruma: "রুমা", Priya: "প্রিয়া", Arjun: "অর্জুন", Nokchan: "নকচান",
+  Aben: "আবেন", Sanen: "সানেন", Vilie: "ভিলিয়ে", Meena: "মীনা",
+  Diki: "দিকি", Ibemhal: "ইবেমহাল", Sanajaoba: "সনাজাওবা",
+  Ngangbi: "ঙাংবি", Lalrin: "লালরিন", Bikash: "বিকাশ",
+  Mona: "মোনা", Ibha: "ইভা", Lobsang: "লোবসাং",
+};
+
+const BN_WORD_MAP = {
+  Hospital: "হাসপাতাল", Market: "বাজার", Park: "পার্ক",
+  School: "স্কুল", River: "নদী", Lake: "লেক",
+  Field: "মাঠ", Garden: "বাগান", Kitchen: "রান্নাঘর",
+  Veranda: "বারান্দা", Porch: "বারান্দা",
+  Guwahati: "গুয়াহাটি", Shillong: "শিলং", Imphal: "ইম্ফল",
+  Aizawl: "আইজল", Itanagar: "ইটানগর", Kohima: "কোহিমা",
+  Dimapur: "দিমাপুর", Forest: "জঙ্গল",
+  bananas: "কলা", milk: "দুধ", fish: "মাছ", crabs: "কাঁকড়া",
+  oranges: "কমলালেবু", pineapple: "আনারস", kiwi: "কিউই", litchi: "লিচু",
+  umbrella: "ছাতা", blanket: "কম্বল", basket: "ঝুড়ি", bag: "ব্যাগ",
+  rice: "ভাত", tea: "চা", vegetables: "সবজি", fruit: "ফল",
+  khar: "খার", thukpa: "থুকপা", momos: "মোমো", pitha: "পিঠা",
+  jadoh: "জাদো", "fish tenga": "ফিশ টেঙ্গা",
+  breakfast: "সকালের প্রাতরাশ", lunch: "দুপুরের খাবার", dinner: "রাতের খাবার",
+  morning: "সকাল", evening: "সন্ধ্যা", afternoon: "দুপুর",
+  home: "বাড়ি", market: "বাজার", river: "নদী", garden: "বাগান",
+  family: "পরিবার", friend: "বন্ধু", neighbor: "প্রতিবেশী",
+  grandfather: "দাদু", grandmother: "ঠাকুমা", father: "বাবা", mother: "মা",
+  son: "ছেলে", daughter: "মেয়ে", husband: "স্বামী", wife: "স্ত্রী",
+  happy: "খুশি", tired: "ক্লান্ত", proud: "গর্বিত",
+  "bamboo shoot": "বাঁশের কোঁড়", pickle: "আচার",
+  Where: "কোথায়", What: "কী", Who: "কে", Why: "কেন", How: "কীভাবে",
+};
+
+function buildBengaliStoryContent(content) {
+  return Object.fromEntries(
+    Object.entries(content).map(([level, stories]) => [
+      level,
+      stories.map((story) => ({
+        ...story,
+        text: replaceBengaliWords(story.text),
+        questions: story.questions.map((item) => ({
+          ...item,
+          question: replaceBengaliWords(item.question),
+          options: item.options.map(replaceBengaliWords),
+        })),
+      })),
+    ]),
+  );
+}
+
+function replaceBengaliWords(text) {
+  if (!text) return text;
+  let out = String(text);
+  for (const [en, bn] of Object.entries(BN_WORD_MAP)) {
+    out = out.replace(new RegExp(`\\b${en}\\b`, "gi"), bn);
+  }
+  for (const [en, bn] of Object.entries(BN_NAME_MAP)) {
+    out = out.replace(new RegExp(`\\b${en}\\b`, "g"), bn);
+  }
+  return out;
+}
+
+const bengaliStoryContent = {
+  1: [
+    {
+      id: "l1_s1",
+      text: "Ravi সকালে বাজারে গিয়েছিলেন। তিনি কলা এবং দুধ কিনেছিলেন। তারপর তিনি বাড়ি ফিরে এসে তাঁর মেয়েকে কলাগুলো দিলেন।",
+      questions: [
+        { question: "Ravi কোথায় গিয়েছিলেন?", options: ["হাসপাতাল", "বাজার", "পার্ক"], correctIndex: 1 },
+        { question: "তিনি কী কিনেছিলেন?", options: ["কলা এবং দুধ", "চাল এবং ডিম", "পাউরুটি এবং চা"], correctIndex: 0 },
+        { question: "তিনি কলাগুলো কাকে দিয়েছিলেন?", options: ["তার মেয়েকে", "তার ছেলেকে", "তার প্রতিবেশীকে"], correctIndex: 0 }
+      ]
+    },
+    {
+      id: "l1_s2",
+      text: "Tenzin সকালে Kohima-র বাজারে গিয়েছিলেন। তিনি তাজা আনারস এবং এক প্যাকেট চা পাতা কিনেছিলেন। বাড়ি ফেরার পথে তিনি প্রতিবেশীকে শুভেচ্ছা জানাতে দাঁড়ালেন। সন্ধ্যায় তিনি তাঁর পরিবারের সঙ্গে আনারস ভাগ করে খেলেন।",
+      questions: [
+        { question: "Tenzin কোথায় গিয়েছিলেন?", options: ["হাসপাতাল", "বাজার", "স্কুল"], correctIndex: 1 },
+        { question: "তিনি কী কিনেছিলেন?", options: ["আনারস এবং চা পাতা", "চাল এবং মাছ", "পাউরুটি এবং দুধ"], correctIndex: 0 },
+        { question: "তিনি আনারস কার সঙ্গে ভাগ করে খেলেন?", options: ["তাঁর পরিবারের সঙ্গে", "তাঁর প্রতিবেশীর সঙ্গে", "তাঁর বন্ধুর সঙ্গে"], correctIndex: 0 }
+      ]
+    },
+    {
+      id: "l1_s3",
+      text: "Ima আজ দুপুরের খাবারের জন্য Khar রান্না করেছিলেন। তিনি পাত্রে বাঁশের কোঁড় এবং কাঁচা পেঁপে যোগ করেছিলেন। তাঁর নাতি স্কুল থেকে বাড়ি ফিরে দরজা থেকেই খাবারের গন্ধ পেল। তাঁর প্রিয় খাবার দেখে সে খুব খুশি হলো।",
+      questions: [
+        { question: "Ima কী রান্না করেছিলেন?", options: ["Khar", "Thukpa", "Momos"], correctIndex: 0 },
+        { question: "স্কুল থেকে কে বাড়ি ফিরল?", options: ["তার নাতি", "তার ছেলে", "তার প্রতিবেশী"], correctIndex: 0 },
+        { question: "তার কেমন অনুভূতি হলো?", options: ["খুশি", "রাগান্বিত", "ক্লান্ত"], correctIndex: 0 }
+      ]
+    },
+    {
+      id: "l1_s4",
+      text: "Binod এবং তাঁর স্ত্রী সাপ্তাহিক বাজার দেখার জন্য Dimapur-এ গিয়েছিলেন। তারা এক ঝুড়ি কমলালেবু এবং কিছু তাজা মাছ কিনেছিলেন। ফেরার পথে বৃষ্টি শুরু হওয়ায় তারা একটি চায়ের দোকানের নিচে অপেক্ষা করলেন।",
+      questions: [
+        { question: "তারা কোন শহরের বাজারে গিয়েছিলেন?", options: ["Dimapur", "Guwahati", "Shillong"], correctIndex: 0 },
+        { question: "তারা কোন দুটি জিনিস কিনেছিলেন?", options: ["কমলালেবু এবং মাছ", "চাল এবং সবজি", "দুধ এবং ডিম"], correctIndex: 0 },
+        { question: "তারা চায়ের দোকানে কেন থামলেন?", options: ["বৃষ্টি শুরু হয়েছিল", "তারা ক্ষুধার্ত ছিল", "তারা এক বন্ধুর সঙ্গে দেখা করেছিল"], correctIndex: 0 }
+      ]
+    }
+  ]
+};
+
+// ─── Export ───────────────────────────────────────────────────────────────────
+
 const storyContent = {
   en: englishStoryContent,
   hi: buildHindiStoryContent(englishStoryContent),
+  bn: bengaliStoryContent,
+  as: buildAssameseStoryContent(englishStoryContent),
 };
 
 export default storyContent;
