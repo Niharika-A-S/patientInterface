@@ -91,10 +91,15 @@ BENGALI LANGUAGE SUPPORT :
   - Story activity
   - Relationship names
 - Integrated Bengali into the existing language-selection and localization system without changing the existing functionality of other supported languages.
-- Added Bengali support for **Shape Sort instructions**, including localized shape names and dynamically generated instructions.
+- Added Bengali support for **Shape Sort instructions**.
 - Added Bengali translations for the **top four stories**, including their questions and answer options.
 - Prepared separate **Bengali voice recordings** for the stories, questions, and answer options using local audio files.
 - Integrated the Bengali story audio so that the appropriate recording is played according to the story, question, and options currently displayed.
 - Maintained the existing **offline functionality** by using bundled/local audio rather than requiring a live voice or cloud API during application use.
-- Removed **Nepali language support** from the interface and project configuration while preserving English, Hindi, Bengali, and Assamese functionality.
-- Verified and maintained consistency across the language configuration so that the supported languages continue to work correctly.
+
+ASSAMESE LANGUAGE SUPPORT 
+- Added Assamese (as) language support to the MemoryCare platform.
+- Added Assamese translations for the interface, dashboard, profile, games, instructions, buttons, and relationships.
+- Integrated Assamese Shape Sort instructions, including dynamic shape/object names.
+- Added separate Assamese interface voice using prerecorded local audio.
+- Added Assamese story voice structure for the top 4 stories, with separate audio for stories, questions, and options.
