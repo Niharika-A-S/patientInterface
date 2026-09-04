@@ -56,8 +56,8 @@ export function mountRememberMyStory(root, { lang, level, onHome }) {
   }
 
   setVoiceLang(lang);
-  // For Bengali, speakStory routes to the correct pre-recorded MP3 by story id.
-  // For other languages, it falls back to speak(text) via Web Speech API.
+  // Bengali and Assamese route to the correct bundled MP3 when one exists.
+  // Other stories/languages use the existing Web Speech API fallback.
   speakStory(lang, story.id, story.text);
   render();
 
@@ -121,8 +121,8 @@ export function mountRememberMyStory(root, { lang, level, onHome }) {
     setVoiceLang(lang);
     stopSpeak();
     render();
-    // For Bengali: plays question audio, then chains options audio on 'ended'.
-    // For other languages: speaks question text via Web Speech API.
+    // Bengali and Assamese play question audio, then chain options audio.
+    // Other languages speak the question text via Web Speech API.
     speakStoryQuestion(lang, story.id, 0, questions[0].question);
   }
 
@@ -144,8 +144,8 @@ export function mountRememberMyStory(root, { lang, level, onHome }) {
     }
     questionStart = Date.now();
     render();
-    // Stop previous audio, then play next question + chain options (Bengali)
-    // or speak question text (other languages).
+    // Stop previous audio, then play the next question + chained options for
+    // Bengali/Assamese, or speak the question text for other languages.
     stopSpeak();
     speakStoryQuestion(lang, story.id, questionIndex, questions[questionIndex].question);
   }

@@ -1538,6 +1538,50 @@ function replaceAssameseWords(text) {
   return out;
 }
 
+// The supplied Assamese transcripts are the authoritative text for the four
+// stories that have matching local Assamese recordings. Keep this pack
+// intentionally limited to those four audio-backed stories.
+const assameseStoryContent = {
+  1: [
+    {
+      id: "l1_s1",
+      text: "ৰাতিপুৱা ৰবিয়ে বজাৰলৈ গ'ল। তেওঁ কল আৰু গাখীৰ কিনিলে। তাৰ পিছত তেওঁ ঘৰলৈ আহি কলকেইটা তেওঁৰ জীয়েকক দিলে.",
+      questions: [
+        { question: "ৰবি ক'লৈ গৈছিল?", options: ["হাস্পতাললৈ", "বজাৰলৈ", "উদ্যানলৈ"], correctIndex: 1 },
+        { question: "তেওঁ কি কিনিছিল?", options: ["কল আৰু গাখীৰ", "চাউল আৰু কণী", "পাউৰুটি আৰু চাহ"], correctIndex: 0 },
+        { question: "তেওঁ কলকেইটা কাক দিছিল?", options: ["তেওঁৰ জীয়েকক", "তেওঁৰ পুতেকক", "তেওঁৰ ওচৰ-চুবুৰীয়াক"], correctIndex: 0 },
+      ],
+    },
+    {
+      id: "l1_s2",
+      text: "ৰাতিপুৱা টেনজিনে কোহিমাৰ বজাৰলৈ গ'ল। তেওঁ সতেজ মাটি-কঁঠাল আৰু এপেকেট চাহপাত কিনিলে। ঘৰলৈ উভতি অহাৰ বাটত তেওঁ অলপ সময় ৰৈ ওচৰ-চুবুৰীয়াক মাত লগালে। সন্ধিয়া তেওঁ পৰিয়ালৰ সৈতে মাটি-কঁঠালখিনি ভগাই খালে.",
+      questions: [
+        { question: "টেনজিন ক'লৈ গৈছিল?", options: ["হাস্পতাললৈ", "বজাৰলৈ", "বিদ্যালয়লৈ"], correctIndex: 1 },
+        { question: "তেওঁ কি কিনিছিল?", options: ["মাটি-কঁঠাল আৰু চাহপাত", "চাউল আৰু মাছ", "পাউৰুটি আৰু গাখীৰ"], correctIndex: 0 },
+        { question: "তেওঁ মাটি-কঁঠালখিনি কাৰ সৈতে ভগাই খাইছিল?", options: ["তেওঁৰ পৰিয়ালৰ সৈতে", "তেওঁৰ ওচৰ-চুবুৰীয়াৰ সৈতে", "তেওঁৰ বন্ধুৰ সৈতে"], correctIndex: 0 },
+      ],
+    },
+    {
+      id: "l1_s3",
+      text: "আজি দুপৰীয়াৰ আহাৰৰ বাবে আইমাই খাৰ ৰান্ধিলে। তেওঁ খাৰত বাঁহগাজ আৰু কেঁচা অমিতা দিলে। তেওঁৰ নাতি বিদ্যালয়ৰ পৰা ঘৰলৈ আহি দুৱাৰমুখৰ পৰাই খাদ্যৰ গোন্ধ পালে। নিজৰ প্ৰিয় খাদ্যটো দেখি সি বৰ আনন্দিত হ'ল.",
+      questions: [
+        { question: "আইমাই কি ৰান্ধিছিল?", options: ["খাৰ", "থুকপা", "ম'ম'"], correctIndex: 0 },
+        { question: "বিদ্যালয়ৰ পৰা কোন ঘৰলৈ আহিছিল?", options: ["তেওঁৰ নাতি", "তেওঁৰ পুতেক", "তেওঁৰ ওচৰ-চুবুৰীয়া"], correctIndex: 0 },
+        { question: "সি কেনে অনুভৱ কৰিছিল?", options: ["আনন্দিত", "খং উঠিছিল", "ভাগৰুৱা"], correctIndex: 0 },
+      ],
+    },
+    {
+      id: "l1_s4",
+      text: "বিনোদ আৰু তেওঁৰ পত্নীয়ে সাপ্তাহিক বজাৰ কৰিবলৈ ডিমাপুৰলৈ গ'ল। তেওঁলোকে এভৰ্তি কমলা আৰু কিছু সতেজ মাছ কিনিলে। উভতি অহাৰ বাটত বৰষুণ আৰম্ভ হ'ল, সেয়ে তেওঁলোকে এখন চাহৰ দোকানৰ তলত ৰৈ বৰষুণজাক কমালৈ অপেক্ষা কৰিলে.",
+      questions: [
+        { question: "তেওঁলোকে কোনখন চহৰৰ বজাৰলৈ গৈছিল?", options: ["ডিমাপুৰ", "গুৱাহাটী", "শ্বিলং"], correctIndex: 0 },
+        { question: "তেওঁলোকে কি দুবিধ বস্তু কিনিছিল?", options: ["কমলা আৰু মাছ", "চাউল আৰু শাক-পাচলি", "গাখীৰ আৰু কণী"], correctIndex: 0 },
+        { question: "তেওঁলোকে চাহৰ দোকানত কিয় ৰৈছিল?", options: ["বৰষুণ আৰম্ভ হৈছিল", "তেওঁলোকৰ ভোক লাগিছিল", "তেওঁলোকে এজন বন্ধুক লগ পাইছিল"], correctIndex: 0 },
+      ],
+    },
+  ],
+};
+
 
 
 // ─── Bengali translation helpers ─────────────────────────────────────────────
@@ -1660,7 +1704,7 @@ const storyContent = {
   en: englishStoryContent,
   hi: buildHindiStoryContent(englishStoryContent),
   bn: bengaliStoryContent,
-  as: buildAssameseStoryContent(englishStoryContent),
+  as: assameseStoryContent,
 };
 
 export default storyContent;

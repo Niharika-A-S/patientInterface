@@ -251,11 +251,138 @@ const BN_STORY_AUDIO = {
   },
 };
 
+// Assamese uses the same interface-audio key architecture as Bengali, but
+// points only to the recordings bundled in the Assamese voice folder.
+const AS_INTERFACE_AUDIO_FILES = [
+  "appTitle",
+  "appTag",
+  "profileTitle",
+  "profileSubtitle",
+  "profileName",
+  "profileState",
+  "welcomeName",
+  "english",
+  "hindi",
+  "repeat",
+  "back",
+  "home",
+  "wellDone",
+  "nice",
+  "patternName",
+  "patternBlurb",
+  "patternHelp",
+  "shapeName",
+  "shapeBlurb",
+  "faceBlurb",
+  "faceHelp",
+  "facePromptWho",
+  "facePromptWhoRelated",
+  "facePromptRelated",
+  "facePromptWhich",
+  "storyName",
+  "storyBlurb",
+  "storyHelp",
+  "storyContinue",
+  "done",
+  "familyPhotos",
+  "familyHelp",
+  "personRelation",
+  "startGame",
+  "shapeInstCircle",
+  "shapeInstSquare",
+  "shapeInstTriangle",
+  "shapeInstRectangle",
+  "shapeInstStar",
+  "shapeInstPentagon",
+  "shapeInstDynamic",
+  "rel_mother",
+  "rel_father",
+  "rel_daughter",
+  "rel_son",
+  "rel_sister",
+  "rel_brother",
+  "rel_spouse",
+  "rel_neighbor",
+  "rel_nurse",
+  "rel_doctor",
+  "rel_granddaughter",
+  "rel_grandson",
+  "rel_friend",
+];
+
+const AS_INTERFACE_AUDIO = Object.fromEntries(
+  AS_INTERFACE_AUDIO_FILES.map((key) => [
+    key,
+    { src: `./assets/assamese_interface_voice/${key}.mp3` },
+  ]),
+);
+
+// These Assamese recordings use an existing phrase for equivalent keys.
+Object.assign(AS_INTERFACE_AUDIO, {
+  playAgain: { src: "./assets/assamese_interface_voice/repeat.mp3" },
+  tryAgain: { src: "./assets/assamese_interface_voice/nice.mp3" },
+  allFound: { src: "./assets/assamese_interface_voice/wellDone.mp3" },
+});
+
+const AS_STORY_AUDIO = {
+  l1_s1: {
+    story: "./assets/assamese_story_voice/story1/story1.mp3",
+    questions: [
+      "./assets/assamese_story_voice/story1/question1.1.mp3",
+      "./assets/assamese_story_voice/story1/question1.2.mp3",
+      "./assets/assamese_story_voice/story1/question1.3.mp3",
+    ],
+    options: [
+      "./assets/assamese_story_voice/story1/option1.1.mp3",
+      "./assets/assamese_story_voice/story1/option1.2.mp3",
+      "./assets/assamese_story_voice/story1/option1.3.mp3",
+    ],
+  },
+  l1_s2: {
+    story: "./assets/assamese_story_voice/story2/story2.mp3",
+    questions: [
+      "./assets/assamese_story_voice/story2/question2.1.mp3",
+      "./assets/assamese_story_voice/story2/question2.2.mp3",
+      "./assets/assamese_story_voice/story2/question2.3.mp3",
+    ],
+    options: [
+      "./assets/assamese_story_voice/story2/option2.1.mp3",
+      "./assets/assamese_story_voice/story2/option2.2.mp3",
+      "./assets/assamese_story_voice/story2/option2.3.mp3",
+    ],
+  },
+  l1_s3: {
+    story: "./assets/assamese_story_voice/story3/story3.mp3",
+    questions: [
+      "./assets/assamese_story_voice/story3/question3.1.mp3",
+      "./assets/assamese_story_voice/story3/question3.2.mp3",
+      "./assets/assamese_story_voice/story3/question3.3.mp3",
+    ],
+    options: [
+      "./assets/assamese_story_voice/story3/option3.1.mp3",
+      "./assets/assamese_story_voice/story3/option3.2.mp3",
+      "./assets/assamese_story_voice/story3/option3.3.mp3",
+    ],
+  },
+  l1_s4: {
+    story: "./assets/assamese_story_voice/story4/story4.mp3",
+    questions: [
+      "./assets/assamese_story_voice/story4/question4.1.mp3",
+      "./assets/assamese_story_voice/story4/question4.2.mp3",
+      "./assets/assamese_story_voice/story4/question4.3.mp3",
+    ],
+    options: [
+      "./assets/assamese_story_voice/story4/option4.1.mp3",
+      "./assets/assamese_story_voice/story4/option4.2.mp3",
+      "./assets/assamese_story_voice/story4/option4.3.mp3",
+    ],
+  },
+};
+
 /**
  * speakKey — speak an interface string by its i18n key.
- * For Bengali this uses bundled interface audio maps when one is mapped; for
- * dynamic keys without a mapped MP3 it falls back to speak(text) via bn-IN TTS.
- * For other languages it always falls back to speak(translatedText) via Web Speech API.
+ * For Bengali and Assamese this uses bundled interface audio maps when one is
+ * mapped; keys without a mapped MP3 use the existing Web Speech API fallback.
  *
  * @param {string} lang  - current language code
  * @param {string} key   - i18n key
@@ -273,13 +400,21 @@ export function speakKey(lang, key, text, mute = false) {
     // No MP3 mapped for this key (e.g. shapeInstDynamic with a dynamic item
     // name) — fall through to speak(text) which uses bn-IN TTS synthesis.
   }
+  if (lang === "as") {
+    const entry = AS_INTERFACE_AUDIO[key];
+    if (entry) {
+      speak(text, entry.src, entry.startTime || 0, null, mute);
+      return;
+    }
+    // No Assamese MP3 mapped for this key — use the existing fallback.
+  }
   speak(text, null, 0, null, mute);
 }
 
 /**
  * speakStory — play story narration audio (the story text phase).
- * For Bengali, plays the story's dedicated offline MP3.
- * For other languages, speaks the translated text via Web Speech API.
+ * For Bengali and Assamese, plays the story's dedicated offline MP3.
+ * Stories without a bundled recording use the existing Web Speech API fallback.
  *
  * @param {string} lang    - current language code
  * @param {string} storyId - story id (e.g. "l1_s1") from storyContent.js
@@ -296,14 +431,24 @@ export function speakStory(lang, storyId, text, mute = false) {
     }
     return;
   }
+  if (lang === "as") {
+    const entry = AS_STORY_AUDIO[storyId];
+    if (entry) {
+      speak(text, entry.story, 0, null, mute);
+    } else {
+      console.warn("[voice] No Assamese story audio mapped for id:", storyId);
+      speak(text, null, 0, null, mute);
+    }
+    return;
+  }
   speak(text, null, 0, null, mute);
 }
 
 /**
  * speakStoryQuestion — play the question audio for the given question index,
  * then automatically chain the options audio once the question finishes.
- * For Bengali: plays questionN.x.mp3, then on 'ended' plays optionN.x.mp3.
- * For other languages: speaks the question text via Web Speech API (no options chaining).
+ * For Bengali and Assamese: plays questionN.x.mp3, then on 'ended' plays
+ * optionN.x.mp3. Other languages use the existing Web Speech API fallback.
  *
  * @param {string} lang          - current language code
  * @param {string} storyId       - story id (e.g. "l1_s1")
@@ -348,6 +493,42 @@ export function speakStoryQuestion(lang, storyId, questionIndex, questionText, m
     }
     return;
   }
+  if (lang === "as") {
+    const entry = AS_STORY_AUDIO[storyId];
+    if (!entry) {
+      console.warn("[voice] No Assamese story audio mapped for id:", storyId);
+      speak(questionText, null, 0, null, false);
+      return;
+    }
+    const questionSrc = entry.questions[questionIndex];
+    const optionsSrc = entry.options[questionIndex];
+    if (!questionSrc) {
+      console.warn("[voice] No Assamese question audio for:", storyId, "q", questionIndex);
+      speak(questionText, null, 0, null, false);
+      return;
+    }
+    // Stop anything currently playing
+    stopSpeak();
+    const generation = ++speakGeneration;
+    // Play question audio
+    const qAudio = new Audio(questionSrc);
+    currentAudio = qAudio;
+    lastSpokenText = questionText;
+    lastAudioSrc = questionSrc;
+    lastAudioStartTime = 0;
+    qAudio.play().catch(e => console.warn("[voice] Question audio failed:", e));
+    // On question end, chain the options audio
+    if (optionsSrc) {
+      qAudio.addEventListener("ended", () => {
+        if (speakGeneration !== generation) return; // superseded
+        const oAudio = new Audio(optionsSrc);
+        currentAudio = oAudio;
+        lastAudioSrc = optionsSrc;
+        oAudio.play().catch(e => console.warn("[voice] Options audio failed:", e));
+      }, { once: true });
+    }
+    return;
+  }
   // Non-Bengali: speak question text via Web Speech API
   speak(questionText, null, 0, null, false);
 }
@@ -366,7 +547,7 @@ export function speak(text, audioSrc = null, startTime = 0, stopTime = null, mut
   stopSpeak();
   const generation = ++speakGeneration;
 
-  if (currentLang === "bn") {
+  if (currentLang === "bn" || currentLang === "as") {
     if (audioSrc) {
       const audio = new Audio(audioSrc);
       currentAudio = audio;
